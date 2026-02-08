@@ -1,0 +1,76 @@
+import json
+import os
+
+SETTINGS_FILE = "settings.json"
+CHARACTERS_FILE = "characters.json"
+STORY_FILE = "story.json"  # Hikaye verisi dosyası
+COUNTRY_FILE = "countries.json" # YENİ: Ülke verisi dosyası
+
+def load_settings():
+    """Ayarları settings.json dosyasından yükler. Yoksa varsayılanları döndürür."""
+    if os.path.exists(SETTINGS_FILE):
+        try:
+            with open(SETTINGS_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            return {"theme": "dark", "project_path": os.getcwd()}
+    return {"theme": "dark", "project_path": os.getcwd()}
+
+def save_settings(settings):
+    """Ayarları settings.json dosyasına kaydeder."""
+    with open(SETTINGS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(settings, f, indent=4)
+
+def load_characters(project_path):
+    """Karakter verilerini characters.json dosyasından yükler."""
+    file_path = os.path.join(project_path, CHARACTERS_FILE)
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            return []
+    return []
+
+def save_characters(project_path, characters):
+    """Karakter verilerini characters.json dosyasına kaydeder."""
+    file_path = os.path.join(project_path, CHARACTERS_FILE)
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(characters, f, indent=4, ensure_ascii=False)
+
+# HİKAYE FONKSİYONLARI (DÜZELTİLDİ)
+
+def load_story_data(project_path):
+    """Hikaye verilerini story.json dosyasından yükler."""
+    file_path = os.path.join(project_path, STORY_FILE)
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            return []
+    return []
+
+def save_story_data(project_path, story_data):
+    """Hikaye verilerini story.json dosyasına kaydeder."""
+    file_path = os.path.join(project_path, STORY_FILE)
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(story_data, f, indent=4, ensure_ascii=False)
+
+# YENİ FONKSİYONLAR: ÜLKE YÖNETİMİ
+def load_country_data(project_path):
+    """Ülke verilerini countries.json dosyasından yükler."""
+    file_path = os.path.join(project_path, COUNTRY_FILE)
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            return []
+    return []
+
+def save_country_data(project_path, country_data):
+    """Ülke verilerini countries.json dosyasına kaydeder."""
+    file_path = os.path.join(project_path, COUNTRY_FILE)
+    with open(file_path, 'w', encoding='utf-8') as f:
+        json.dump(country_data, f, indent=4, ensure_ascii=False)

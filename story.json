@@ -1,0 +1,12 @@
+[
+    {
+        "id": "S-01",
+        "title": "Bölüm 1: Ülkeler Genel",
+        "content": "Ülke Genel Bilgiler;\n\nZhaerri:\n\nNüfus; 3-5 Milyon Arası Tahmini Nüfus\nProfesyonel Ordu; 45,000-125,000 Asker\nAzami Seferberlik Potansiyeli; 150,000-400,000 Milis\n\nTharien:\n\nNüfus; 1.5-2 Milyon Arası Tahmini Nüfus\nProfesyonel Ordu; 12,000-24,000 Asker\nAzami Seferberlik Potansiyeli; 30,000-60,000 Milis\n\nRhazir:\n\nNüfus; 200,000-400,000 Arası Tahmini Nüfus\nProfesyonel Ordu; 3,000-12,000 Yerel Muhafız\nAzami Seferberlik Potansiyeli; 30,000-100,000 Paralı Asker\n\nVandrell:\n\nNüfus; 300,000-500,000 Arası Tahmini Nüfus\nProfesyonel Ordu; 3,000-9,000 Asker\nAzami Seferberlik Potansiyeli; 12,000-30,000 Milis\n\nNyrim:\n\nNüfus; 250,000-500,000 Arası Tahmini Nüfus\nProfesyonel Ordu; 10,000-40,000 Asker\nAzami Seferberlik Potansiyeli; 25,000-75,000 Milis\n\nBirtan:\n\nNüfus; 100,000-200,000 Arası Tahmini Nüfus\nProfesyonel Ordu; 2,000-8,000 Asker\nAzami Seferberlik Potansiyeli; 5,000-16,000 Milis\n\nGAF:\n\nNüfus; 200,000-400,000 Arası Tahmini Nüfus\nProfesyonel Ordu; 3,000-10,000 Asker\nAzami Seferberlik Potansiyeli; 6,000-24,000 Milis\n\nKAF:\n\nNüfus; 100,000-200,000 Arası Tahmini Nüfus\nProfesyonel Ordu; 2,500-10,000 Asker\nAzami Seferberlik Potansiyeli; 5,000-20,000 Milis\n\nTenebris:\n\nNüfus; 50,000-100,000 Arası Tahmini Nüfus\nMilisler; 500-1,500 Asker\nÇekirdek Büyücü; 100-150 Milis"
+    },
+    {
+        "id": "S-02",
+        "title": "Bölüm 2: Python",
+        "content": "python -m http.server\n\nhttp://localhost:8000"
+    }
+]

@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Env
+venv/
+env/
+ENV/
+.venv/
+
+# Database (Optional - Un-comment if you WANT to upload your local DB to start with, 
+# but usually DBs are not committed. However, for this specific user request 
+# "Aynı verilere sahip", we MUST commit the DB initially)
+# *.db
+# hikaye_veritabani.db
+
+# Logs
+*.log

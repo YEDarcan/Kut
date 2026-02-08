@@ -1,0 +1,4 @@
+Starting import...
+QtMultimedia OK
+QtCore OK
+Skipping QtWidgets import

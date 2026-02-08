@@ -1,0 +1,445 @@
+from PySide6.QtWidgets import (
+    QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, 
+    QMenuBar, QStatusBar, QTabWidget, QLabel, 
+    QLineEdit, QPushButton, QComboBox, QCheckBox, 
+    QListWidget, QGridLayout, QFrame, QTextEdit, 
+    QScrollArea, QSizePolicy, QTreeWidget, QTreeWidgetItem # YENİ EKLEMELER
+)
+from PySide6.QtGui import QAction, QPixmap
+from PySide6.QtCore import Qt, QSize
+
+# --- Sabit Değerler (Combobox İçerikleri) ---
+MILLTETLER = ["Zhaerri", "Nyrim", "Rhazir", "Vandrell", "Tharien", "Cyta", "Valionis", "Bilinmiyor"]
+ULKELER = ["Zhaerri İmparatorluğu", "Nyrim Klanları", "Rhazir", "Vandrell Cumhuriyeti", "Tharien Cumhuriyeti", "Birtan Krallığı", "Güney Adalar Federasyonu", "Kuzey Adalar Federasyonu", "Valionis Halkları", "Tenebris Diktası", "Bilinmiyor"]
+BUYU_TIPLERI = ["Işık", "Kan", "Kara", "Toprak", "Fırtına", "Ateş"]
+CINSIYETLER = ["Erkek", "Kadın", "Bilinmiyor"]
+
+# YENİ SABİT DEĞER (ülke yönetiminde kullanılacak)
+ULKE_YONETIM_KODLARI = ["ULK-01", "ULK-02", "ULK-03", "ULK-04", "ULK-05"] # Örnek ülke kodları
+
+class MainWindowUI(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Hikaye Yönetim Programı")
+        self.setGeometry(100, 100, 1200, 800)
+
+        self._create_central_widget() 
+        
+        self.setStatusBar(QStatusBar(self))
+        self.statusBar().showMessage("Uygulama Başlatıldı.")
+
+        self._create_menu_bar()
+
+    def _create_central_widget(self):
+        """Uygulamanın merkez içeriğini (Karakter, Hikaye ve Ülke Yönetimi sekmeleri) oluşturur."""
+        self.tab_widget = QTabWidget(self)
+        self.setCentralWidget(self.tab_widget)
+        
+        # Karakter Sekmesi (Mevcut)
+        self.character_tab = QWidget()
+        self.tab_widget.addTab(self.character_tab, "Karakter Yönetimi")
+
+        # Hikaye Sekmesi (Mevcut)
+        self.story_tab = QWidget()
+        self.tab_widget.addTab(self.story_tab, "Hikaye Yönetimi")
+
+        # YENİ SEKME: Ülke Yönetimi
+        self.country_tab = QWidget()
+        self.tab_widget.addTab(self.country_tab, "Ülke Yönetimi")
+        
+        # YENİ SEKME: Ülke Hikayeleri
+        self.country_story_tab = QWidget()
+        self.tab_widget.addTab(self.country_story_tab, "Ülke Hikayeleri")
+
+        
+        self.tab_widget.setTabsClosable(False)
+        
+        self._setup_character_tab()
+        self._setup_story_tab() 
+        self._setup_country_tab()
+        self._setup_country_story_tab()
+
+
+    def _create_menu_bar(self):
+        """İstenilen Dosya, Excel ve Tema menülerini oluşturur."""
+        menu_bar = QMenuBar(self)
+        self.setMenuBar(menu_bar)
+
+        file_menu = menu_bar.addMenu("Dosya")
+
+        self.action_select_folder = QAction("Proje Klasörü Seç...", self)
+        file_menu.addAction(self.action_select_folder)
+
+        self.action_refresh = QAction("Yenile", self)
+        file_menu.addAction(self.action_refresh)
+
+        file_menu.addSeparator()
+
+        self.action_exit = QAction("Çıkış", self)
+        file_menu.addAction(self.action_exit)        
+
+        excel_menu = menu_bar.addMenu("Excel")
+        self.action_excel_load = QAction("Excel Yükle", self)
+        self.action_excel_load.setDisabled(True)
+        excel_menu.addAction(self.action_excel_load)
+        self.action_excel_download = QAction("Excel İndir", self)
+        self.action_excel_download.setDisabled(True)
+        excel_menu.addAction(self.action_excel_download)
+        
+        theme_menu = menu_bar.addMenu("Tema")
+        self.action_theme_light = QAction("Açık", self)
+        theme_menu.addAction(self.action_theme_light)
+        self.action_theme_dark = QAction("Koyu", self)
+        theme_menu.addAction(self.action_theme_dark)
+
+
+    def _setup_character_tab(self):
+        """Karakter Yönetimi sekmesinin layout'unu kurar."""
+        main_layout = QHBoxLayout(self.character_tab)
+
+        # 1. SOL: Karakter Detayları Penceres (Oran: 2)
+        self.detail_panel = self._create_detail_panel()
+        main_layout.addWidget(self.detail_panel, 2) 
+
+        # 2. ORTA: Boş Alan (Oran: 6) - Detaylı Açıklama Metin Alanı
+        self.middle_panel = self._create_empty_panel()
+        main_layout.addWidget(self.middle_panel, 6) 
+
+        # 3. SAĞ: Karakter Listesi Penceresi (Oran: 1)
+        self.list_panel = self._create_list_panel()
+        main_layout.addWidget(self.list_panel, 1)
+
+    
+    def _create_detail_panel(self):
+        """Karakter detaylarını ve görseli tutan sol paneli oluşturur."""
+        panel = QFrame()
+        panel.setFrameShape(QFrame.StyledPanel)
+        main_layout = QVBoxLayout(panel)
+        main_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        # 1. Görsel Alanı
+        self.label_image = QLabel("Görsel Yok")
+        self.label_image.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label_image.setFixedSize(200, 200) # Sabit boyut
+        self.label_image.setFrameShape(QFrame.Box)
+        self.label_image.setFrameShadow(QFrame.Sunken)
+        main_layout.addWidget(self.label_image, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        # 2. Görsel Butonları
+        photo_button_layout = QHBoxLayout()
+        self.btn_add_photo = QPushButton("Fotoğraf Ekle")
+        self.btn_del_photo = QPushButton("Fotoğraf Sil")
+        photo_button_layout.addWidget(self.btn_add_photo)
+        photo_button_layout.addWidget(self.btn_del_photo)
+        main_layout.addLayout(photo_button_layout)
+        
+        # 3. Form Alanı
+        form_widget = QWidget()
+        form_layout = QGridLayout(form_widget)
+        
+        labels = ["Kod:", "Ad:", "Ünvan:", "Cinsiyet:", "Millet:", "Ülke:"]
+        self.entries = {}
+        row = 0
+        
+        for text in labels:
+            form_layout.addWidget(QLabel(text), row, 0)
+            
+            if text == "Kod:":
+                self.entry_char_code = QLineEdit()
+                self.entry_char_code.setReadOnly(True)
+                form_layout.addWidget(self.entry_char_code, row, 1)
+                self.entries[text.strip(':')] = self.entry_char_code
+            elif text == "Cinsiyet:":
+                self.combo_gender = QComboBox()
+                self.combo_gender.addItems(CINSIYETLER)
+                form_layout.addWidget(self.combo_gender, row, 1)
+                self.entries[text.strip(':')] = self.combo_gender
+            elif text == "Millet:":
+                self.combo_nation = QComboBox()
+                self.combo_nation.addItems(MILLTETLER)
+                form_layout.addWidget(self.combo_nation, row, 1)
+                self.entries[text.strip(':')] = self.combo_nation
+            elif text == "Ülke:":
+                self.combo_country = QComboBox()
+                self.combo_country.addItems(ULKELER)
+                form_layout.addWidget(self.combo_country, row, 1)
+                self.entries[text.strip(':')] = self.combo_country
+            else:
+                entry = QLineEdit()
+                form_layout.addWidget(entry, row, 1)
+                self.entries[text.strip(':')] = entry
+            
+            row += 1
+
+        # Büyü Gücü Kontrolü
+        self.check_magic = QCheckBox("Büyü Gücü Var mı?")
+        form_layout.addWidget(self.check_magic, row, 0, 1, 2)
+        row += 1
+        
+        # Büyü Tipi Combobox
+        form_layout.addWidget(QLabel("Büyü Tipi:"), row, 0)
+        self.combo_magic_type = QComboBox()
+        self.combo_magic_type.addItems(["Seçiniz"] + BUYU_TIPLERI)
+        form_layout.addWidget(self.combo_magic_type, row, 1)
+        row += 1
+        
+        main_layout.addWidget(form_widget)
+
+        # 4. İşlem Butonları
+        action_button_layout = QHBoxLayout()
+        self.btn_add = QPushButton("Ekle")
+        self.btn_update = QPushButton("Güncelle")
+        self.btn_clear = QPushButton("Temizle")
+        action_button_layout.addWidget(self.btn_add)
+        action_button_layout.addWidget(self.btn_update)
+        action_button_layout.addWidget(self.btn_clear)
+        main_layout.addLayout(action_button_layout)
+
+        return panel
+
+    def _create_empty_panel(self):
+        """Karakter detaylı metin alanını tutan orta paneli oluşturur."""
+        panel = QWidget()
+        layout = QVBoxLayout(panel)
+        
+        # Detaylı Açıklama Metin Alanı
+        self.middle_text_edit = QTextEdit()
+        self.middle_text_edit.setPlaceholderText("Seçili Karakterin detaylı açıklaması buraya gelecek...")
+        layout.addWidget(self.middle_text_edit)
+        return panel
+
+    def _create_list_panel(self):
+        """Karakter listesi, filtre ve işlem butonlarını tutan sağ paneli oluşturur."""
+        panel = QFrame()
+        panel.setFrameShape(QFrame.StyledPanel)
+        main_layout = QVBoxLayout(panel)
+
+        # 1. Filtreleme Alanı
+        filter_layout = QHBoxLayout()
+        self.entry_filter = QLineEdit()
+        self.entry_filter.setPlaceholderText("Kod veya Ad ile Filtrele")
+        self.btn_clear_filter = QPushButton("X")
+        self.btn_clear_filter.setFixedSize(25, 25)
+
+        filter_layout.addWidget(self.entry_filter)
+        filter_layout.addWidget(self.btn_clear_filter)
+        main_layout.addLayout(filter_layout)
+
+        # 2. Liste
+        self.list_karakterler = QListWidget()
+        main_layout.addWidget(self.list_karakterler)
+
+        # 3. Liste Butonları
+        list_button_layout = QHBoxLayout()
+        self.btn_load_char = QPushButton("Karakteri Yükle")
+        self.btn_delete_chars = QPushButton("Karakter(ler)i Sil")
+        list_button_layout.addWidget(self.btn_load_char)
+        list_button_layout.addWidget(self.btn_delete_chars)
+        main_layout.addLayout(list_button_layout)
+
+        return panel
+    
+    # --- HİKAYE SEKME KURULUMU (Korundu) ---
+    def _setup_story_tab(self):
+        """Hikaye Yönetimi sekmesinin layout'unu kurar."""
+        main_layout = QHBoxLayout(self.story_tab)
+        
+        # Sol Taraf: Bölüm İçeriği (Geniş Alan - Oran: 8)
+        content_widget = QWidget()
+        content_layout = QVBoxLayout(content_widget)
+        
+        # 1. Bölüm Başlığı
+        self.entry_chapter_title = QLineEdit()
+        self.entry_chapter_title.setPlaceholderText("Bölüm Başlığı (Örn: Bölüm 1: Giriş)")
+        content_layout.addWidget(self.entry_chapter_title)
+
+        # 2. Bölüm Metin Alanı
+        self.text_chapter_content = QTextEdit()
+        self.text_chapter_content.setPlaceholderText("Bölüm metnini buraya yazın...")
+        content_layout.addWidget(self.text_chapter_content)
+        
+        # Kelime Sayacı Etiketi
+        self.label_word_count = QLabel("Kelime Sayısı: 0 | Karakter Sayısı: 0")
+        self.label_word_count.setAlignment(Qt.AlignRight) 
+        self.label_word_count.setStyleSheet("font-size: 10pt; color: gray;") 
+        content_layout.addWidget(self.label_word_count) 
+        
+        # 3. Kaydet/Güncelle butonu (Sağa Hizalama için QHBoxLayout kullanılır)
+        self.btn_save_chapter = QPushButton("Kaydet / Güncelle")
+        self.btn_save_chapter.setFixedWidth(150) 
+        
+        save_layout = QHBoxLayout()
+        save_layout.addStretch(1) # Butonu sağa hizala
+        save_layout.addWidget(self.btn_save_chapter)
+        content_layout.addLayout(save_layout) 
+        
+        main_layout.addWidget(content_widget, 8) 
+
+        # Sağ Taraf: Anahat Listesi ve Butonlar (Dar Alan - Oran: 2)
+        outline_panel = QFrame()
+        outline_layout = QVBoxLayout(outline_panel)
+        outline_panel.setStyleSheet("QFrame { border: 1px solid #303030; border-radius: 5px; }")
+        
+        outline_layout.addWidget(QLabel("Anahat (Bölümler)"))
+
+        # 1. Anahat Listesi
+        self.list_outline = QListWidget()
+        self.list_outline.setDragDropMode(QListWidget.InternalMove) # Sürükle-bırak için ayar
+        outline_layout.addWidget(self.list_outline)
+        
+        # 2. Ekle/Sil Butonları
+        crud_button_layout = QHBoxLayout()
+        self.btn_add_chapter = QPushButton("Bölüm Ekle")
+        self.btn_delete_chapter = QPushButton("Bölüm Sil")
+        
+        crud_button_layout.addWidget(self.btn_add_chapter)
+        crud_button_layout.addWidget(self.btn_delete_chapter)
+        outline_layout.addLayout(crud_button_layout)
+        
+        # 3. Taşıma Butonları (Sürükle-Bırak'ı desteklesek de manuel butonu ekliyoruz)
+        move_button_layout = QHBoxLayout()
+        self.btn_move_up = QPushButton("Yukarı Taşı")
+        self.btn_move_down = QPushButton("Aşağı Taşı")
+        
+        move_button_layout.addWidget(self.btn_move_up)
+        move_button_layout.addWidget(self.btn_move_down)
+        outline_layout.addLayout(move_button_layout)
+        
+        main_layout.addWidget(outline_panel, 2)
+
+    # --- ÜLKE SEKME KURULUMU (KORUNDU) ---
+    def _setup_country_tab(self):
+        """Ülke Yönetimi sekmesinin layout'unu kurar (2:2:6 oranında 3 panel)."""
+        main_layout = QHBoxLayout(self.country_tab)
+
+        # 1. SOL: Ülke Listesi (Oran: 2)
+        self.country_list_panel = self._create_country_list_panel()
+        main_layout.addWidget(self.country_list_panel, 2)
+
+        # 2. ORTA: Ülke Coğrafyası Detayları (Oran: 2)
+        self.country_geo_panel = self._create_country_geo_panel() 
+        main_layout.addWidget(self.country_geo_panel, 2) # Oran 2 oldu (2:2:6)
+
+        # 3. SAĞ: Yönetim Biçimi Detayları (Oran: 6)
+        self.country_gov_panel = self._create_country_gov_panel()
+        main_layout.addWidget(self.country_gov_panel, 6) # Oran 6 oldu (2:2:6)
+
+    def _create_country_list_panel(self):
+        """Ülke listesi ve butonları tutan sol paneli oluşturur."""
+        panel = QFrame()
+        panel.setFrameShape(QFrame.StyledPanel)
+        main_layout = QVBoxLayout(panel)
+        
+        main_layout.addWidget(QLabel("Ülkeler"))
+
+        # 1. Liste
+        self.list_countries = QListWidget()
+        self.list_countries.addItems(ULKE_YONETIM_KODLARI) # UI test amaçlı sabit verileri yükle
+        main_layout.addWidget(self.list_countries)
+
+        # 2. Butonlar
+        button_layout = QHBoxLayout()
+        self.btn_add_country = QPushButton("Yeni Ülke")
+        self.btn_delete_country = QPushButton("Sil")
+        button_layout.addWidget(self.btn_add_country)
+        button_layout.addWidget(self.btn_delete_country)
+        main_layout.addLayout(button_layout)
+
+        return panel
+    
+    # GÜNCELLENDİ: Yönetim Biçimi (Yeni Sağ Panel - QTreeWidget ve QTextEdit ayrıldı)
+    def _create_country_gov_panel(self):
+        """Yönetim Biçimi detaylarını (QTreeWidget üstte, QTextEdit altta) tutan paneli oluşturur (SAĞ PANEL)."""
+        panel = QWidget()
+        layout = QVBoxLayout(panel)
+        
+        # 1. Ağaç Başlığı ve Widget
+        layout.addWidget(QLabel("Yönetim Birimleri (Yapı/Hiyerarşi):"))
+        
+        self.tree_country_gov = QTreeWidget()
+        self.tree_country_gov.setHeaderLabels(["Birim/Kurum Adı"]) # SADECE TEK SÜTUN
+        self.tree_country_gov.setColumnCount(1)
+        self.tree_country_gov.header().setStretchLastSection(True) # Son sütunu esnet
+        
+        # Sadece Ad'ın görünmesi için boyut ayarı (Opsiyonel ama iyi bir pratik)
+        self.tree_country_gov.header().setMinimumSectionSize(200)
+
+        layout.addWidget(self.tree_country_gov, 3) # Oran 3 (Daha büyük olması için)
+        
+        # 2. Detay Penceresi
+        layout.addWidget(QLabel("Seçili Birim Detayı:"))
+        self.text_gov_detail = QTextEdit()
+        self.text_gov_detail.setPlaceholderText("Seçili Yönetim Biriminin Detaylı Açıklaması...")
+        layout.addWidget(self.text_gov_detail, 2) # Oran 2 (TreeWidget'tan daha küçük)
+        
+        # 3. Ağaç Yönetim Butonları
+        tree_button_layout = QHBoxLayout()
+        self.btn_add_gov_item = QPushButton("Ana Birim Ekle")
+        self.btn_add_gov_child = QPushButton("Alt Birim Ekle")
+        self.btn_remove_gov_item = QPushButton("Seçili Birimi Sil")
+        
+        tree_button_layout.addWidget(self.btn_add_gov_item)
+        tree_button_layout.addWidget(self.btn_add_gov_child)
+        tree_button_layout.addWidget(self.btn_remove_gov_item)
+        layout.addLayout(tree_button_layout)
+        
+        # 4. Kaydet butonu
+        self.btn_save_country = QPushButton("Ülke Bilgilerini Kaydet")
+        layout.addWidget(self.btn_save_country, alignment=Qt.AlignmentFlag.AlignRight)
+
+        return panel
+
+    # Ülke Coğrafyası (Orta Panel)
+    def _create_country_geo_panel(self):
+        """Ülke Coğrafyası detay metin alanını tutan paneli oluşturur (ORTA PANEL)."""
+        panel = QWidget()
+        layout = QVBoxLayout(panel)
+        
+        # ÜLKE ADI
+        layout.addWidget(QLabel("Ülke Adı:")) 
+        self.entry_country_name = QLineEdit() 
+        self.entry_country_name.setPlaceholderText("Örn: Zhaerri İmparatorluğu")
+        layout.addWidget(self.entry_country_name)
+        
+        layout.addWidget(QLabel("Ülke Coğrafyası (Detaylı Açıklama):"))
+        # Ülke Coğrafyası Metin Alanı
+        self.text_country_geo = QTextEdit()
+        self.text_country_geo.setPlaceholderText("Ülkenin haritası, iklimi, önemli şehirleri ve doğal kaynaklarını buraya yazın...")
+        layout.addWidget(self.text_country_geo)
+        
+        return panel
+     # Ülke Hikayeleri Sekmesi
+    def _setup_country_story_tab(self):
+        """Ülke Hikayeleri sekmesinin layout'unu kurar."""
+        main_layout = QHBoxLayout(self.country_story_tab)
+
+        # Sol panel – Ülkeler listesi (oran 2)
+        left_panel = QFrame()
+        left_panel.setFrameShape(QFrame.StyledPanel)
+        left_layout = QVBoxLayout(left_panel)
+
+        left_layout.addWidget(QLabel("Ülkeler"))
+        self.list_country_stories = QListWidget()
+        # Örnek veri – gerçek veriler data.py'den yüklenecekpython 
+        left_layout.addWidget(self.list_country_stories)
+    
+        main_layout.addWidget(left_panel, 2)
+
+        # Sağ panel – Ülke hikayesi editörü (oran 8)
+        right_panel = QFrame()
+        right_panel.setFrameShape(QFrame.StyledPanel)
+        right_layout = QVBoxLayout(right_panel)
+
+        right_layout.addWidget(QLabel("Ülke Hikayesi"))
+        self.text_country_story = QTextEdit()
+        self.text_country_story.setPlaceholderText("Seçili ülkenin hikayesini buraya yazın...")
+        right_layout.addWidget(self.text_country_story)
+
+        # Kaydet butonu (sağa hizalı)
+        self.btn_save_country_story = QPushButton("Kaydet")
+        save_layout = QHBoxLayout()
+        save_layout.addStretch()
+        save_layout.addWidget(self.btn_save_country_story)
+        right_layout.addLayout(save_layout)
+
+        main_layout.addWidget(right_panel, 8)

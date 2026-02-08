@@ -1,0 +1,1028 @@
+import sys
+import os
+import re 
+from PySide6.QtWidgets import QApplication, QFileDialog, QMessageBox, QListWidgetItem, QInputDialog, QTreeWidgetItem
+from PySide6.QtGui import QPalette, QColor, QPixmap
+from PySide6.QtCore import Qt, QTimer, QByteArray
+from ui import MainWindowUI 
+import data as data_manager 
+from ui import MILLTETLER, ULKELER, BUYU_TIPLERI, ULKE_YONETIM_KODLARI # YENİ SABİTİ İÇE AKTAR
+from string import ascii_uppercase
+import io
+import base64
+from PIL import Image
+
+class StoryApp:
+    """Uygulamanın ana kontrol sınıfı."""
+    def __init__(self):
+        # 1. Veri Yükleme
+        self.settings = data_manager.load_settings()
+        self.app = QApplication(sys.argv)
+        self.main_window = MainWindowUI()
+        
+        # 2. Karakter, Hikaye ve Ülke verilerini yükle
+        self.project_path = self.settings.get("project_path", os.getcwd())
+        self.characters = data_manager.load_characters(self.project_path)
+        self.story_data = data_manager.load_story_data(self.project_path)
+        self.country_data = data_manager.load_country_data(self.project_path) # YENİ: Ülke verisi
+        self._populate_country_stories()
+
+        self.current_image_base64 = "" 
+        self.current_character_code = None # Aktif karakter kodunu tutar (Karakter sekmesi için)
+        self.current_chapter_id = None # Aktif bölüm ID'sini tutar (Hikaye sekmesi için)
+        self.current_country_id = None # YENİ: Aktif ülke ID'sini tutar (Ülke sekmesi için)
+
+        # 3. Tema ve Sinyaller
+        self._apply_theme(self.settings.get("theme", "dark")) 
+        self._connect_signals()
+        
+        # Kelime Sayacı Bağlantısı (Metin değiştiğinde sayacı günceller)
+        self.main_window.text_chapter_content.textChanged.connect(self._update_word_count)
+
+        # YENİ EKLEME: OTOMATİK KAYDETME ZAMANLAYICISI
+        self.auto_save_timer = QTimer()
+        self.auto_save_timer.timeout.connect(self._auto_save)
+        # 30 saniyede bir kaydetme ayarı (30.000 milisaniye)
+        self.auto_save_timer.start(30000) 
+        self.main_window.statusBar().showMessage("Otomatik kaydetme aktif: 30 saniye aralıklarla.", 5000)
+
+        # 4. Uygulama açıldığında listeleri hemen doldur
+        self._update_character_list()
+        self._update_outline_list()
+        self._update_country_list() # YENİ: Ülke listesini doldur
+
+        # 5. Sürükle bırak sonrası listeyi güncellemek için bir QTimer
+        self.reorder_timer = QTimer()
+        self.reorder_timer.setSingleShot(True)
+        self.reorder_timer.timeout.connect(self._handle_reorder)
+        
+        
+    def _populate_country_stories(self):
+        self.main_window.list_country_stories.clear()
+        for c in self.country_data:
+            item = QListWidgetItem(f"[{c['id']}] {c['name']}")
+            item.setData(Qt.UserRole, c["id"])
+            self.main_window.list_country_stories.addItem(item)
+
+
+
+    def _connect_signals(self):
+        """UI'daki aksiyonları (QAction, QButton vb.) ilgili fonksiyonlara bağlar."""
+        
+        # --- Menü ve Karakter Sekmesi Bağlantıları ---
+        self.main_window.action_select_folder.triggered.connect(self.select_project_folder)
+        self.main_window.action_exit.triggered.connect(self.app.quit)
+        self.main_window.action_theme_light.triggered.connect(lambda: self._apply_theme("light"))
+        self.main_window.action_theme_dark.triggered.connect(lambda: self._apply_theme("dark"))
+        self.main_window.action_refresh.triggered.connect(self._refresh_country_data)
+        
+        self.main_window.btn_add.clicked.connect(self.add_character)
+        self.main_window.btn_update.clicked.connect(self.update_character)
+        self.main_window.btn_clear.clicked.connect(self._clear_character_details)
+        self.main_window.btn_add_photo.clicked.connect(self.add_photo)
+        self.main_window.btn_del_photo.clicked.connect(self.delete_photo)
+        self.main_window.btn_load_char.clicked.connect(self.load_selected_character)
+        self.main_window.btn_delete_chars.clicked.connect(self.delete_selected_characters)
+        self.main_window.list_karakterler.itemClicked.connect(self._load_character_details_from_list)
+        self.main_window.entry_filter.textChanged.connect(self._apply_filter)
+        self.main_window.btn_clear_filter.clicked.connect(self._clear_filter)
+        
+        # --- HİKAYE SEKME BAĞLANTILARI ---
+        self.main_window.btn_add_chapter.clicked.connect(self.add_chapter)
+        self.main_window.btn_delete_chapter.clicked.connect(self.delete_chapter)
+        self.main_window.btn_save_chapter.clicked.connect(self.save_current_chapter)
+        self.main_window.btn_move_up.clicked.connect(lambda: self.move_chapter(direction='up'))
+        self.main_window.btn_move_down.clicked.connect(lambda: self.move_chapter(direction='down'))
+        
+        # Listeden Bölüm Yükleme
+        self.main_window.list_outline.itemClicked.connect(self.load_selected_chapter_details)
+        
+        # Sürükle bırak işlemi bittiğinde yeniden numaralandırmayı tetikle
+        self.main_window.list_outline.model().rowsMoved.connect(self._trigger_reorder_check)
+
+        # --- YENİ BAĞLANTILAR: ÜLKE SEKME ---
+        self.main_window.btn_add_country.clicked.connect(self.add_country)
+        self.main_window.btn_delete_country.clicked.connect(self.delete_country)
+        self.main_window.btn_save_country.clicked.connect(self.save_current_country)
+        self.main_window.list_countries.itemClicked.connect(self.load_selected_country_details)
+        
+        # YENİ AĞAÇ YÖNETİM BUTONLARI
+        self.main_window.btn_add_gov_item.clicked.connect(self.add_gov_item)
+        self.main_window.btn_add_gov_child.clicked.connect(self.add_gov_child)
+        self.main_window.btn_remove_gov_item.clicked.connect(self.remove_gov_item)
+        
+        # YENİ BAĞLANTI: Ağaç öğesi seçildiğinde detayı yükle
+        self.main_window.tree_country_gov.currentItemChanged.connect(self._load_gov_item_detail)
+        
+        # Ülke Hikayeleri sekmesi bağlantıları
+        self.main_window.list_country_stories.itemClicked.connect(self.load_country_story)
+        self.main_window.btn_save_country_story.clicked.connect(self.save_country_story)
+
+
+    # --- TEMA VE AYARLAR YÖNETİMİ (ORİJİNAL KOD GERİ YÜKLENDİ) ---
+    def _apply_theme(self, theme_name):
+        """Uygulamanın temasını ayarlar, kalıcı olarak kaydeder ve stilsheet uygular."""
+        self.settings["theme"] = theme_name
+        data_manager.save_settings(self.settings)
+
+        palette = QPalette()
+        stylesheet = "" # Stilsheet'i burada tanımlayacağız
+
+        if theme_name == "dark":
+            base_color = QColor(30, 30, 30)
+            base_light_color = QColor(45, 45, 45) # List/TextEdit Background
+            text_color = QColor(255, 255, 255)
+            highlight_color = QColor(0, 120, 215)  # Mavi vurgu
+            
+            # Koyu Tema için Stilsheet
+            stylesheet = f"""
+                QFrame {{
+                    background-color: {base_color.name()};
+                    color: {text_color.name()};
+                }}
+                QListWidget, QTextEdit, QLineEdit, QTreeWidget {{
+                    background-color: {base_light_color.name()};
+                    color: {text_color.name()};
+                    border: 1px solid {base_color.lighter(150).name()};
+                }}
+                QPushButton {{
+                    background-color: {base_color.lighter(130).name()};
+                    color: {text_color.name()};
+                    border: 1px solid {base_color.lighter(150).name()};
+                    padding: 5px;
+                    border-radius: 3px;
+                }}
+                QMenuBar, QMenuBar::item {{ 
+                    color: {text_color.name()}; 
+                    background-color: {base_color.name()}; 
+                }}
+                QMenu {{
+                    background-color: {base_color.name()};
+                    color: {text_color.name()};
+                }}
+            """
+            
+        else: # light
+            base_color = QColor(240, 240, 240)
+            base_light_color = QColor(255, 255, 255) # List/TextEdit Background
+            text_color = QColor(0, 0, 0)
+            highlight_color = QColor(0, 120, 215)
+
+            # Açık Tema için Stilsheet
+            stylesheet = f"""
+                QFrame {{
+                    background-color: {base_color.name()};
+                    color: {text_color.name()};
+                }}
+                QListWidget, QTextEdit, QLineEdit, QTreeWidget {{
+                    background-color: {base_light_color.name()};
+                    color: {text_color.name()};
+                    border: 1px solid {QColor(200, 200, 200).name()};
+                }}
+                QPushButton {{
+                    background-color: {base_color.darker(105).name()};
+                    color: {text_color.name()};
+                    border: 1px solid {base_color.darker(115).name()};
+                    padding: 5px;
+                    border-radius: 3px;
+                }}
+                QMenuBar, QMenuBar::item {{ 
+                    color: {text_color.name()}; 
+                    background-color: {base_color.name()}; 
+                }}
+                QMenu {{
+                    background-color: {base_light_color.name()};
+                    color: {text_color.name()};
+                }}
+            """
+
+        # Temel palet renklerini ayarla
+        palette.setColor(QPalette.Window, base_color)
+        palette.setColor(QPalette.WindowText, text_color)
+        palette.setColor(QPalette.Base, base_light_color) 
+        palette.setColor(QPalette.AlternateBase, base_color)
+        palette.setColor(QPalette.ToolTipBase, text_color)
+        palette.setColor(QPalette.ToolTipText, text_color)
+        palette.setColor(QPalette.Text, text_color)
+        palette.setColor(QPalette.Button, base_color.lighter(110))
+        palette.setColor(QPalette.ButtonText, text_color)
+        palette.setColor(QPalette.BrightText, text_color)
+        palette.setColor(QPalette.Highlight, highlight_color)
+        palette.setColor(QPalette.HighlightedText, QColor(255, 255, 255))
+        
+        self.app.setPalette(palette)
+        # BURADA QTreeWidget'a destek verecek şekilde Stilsheet'e QTreeWidget eklendi.
+        self.app.setStyleSheet(stylesheet) 
+        self.main_window.statusBar().showMessage(f"Tema başarıyla '{theme_name}' olarak ayarlandı.", 3000)
+        
+    def select_project_folder(self):
+        """Yeni proje klasörünü seçer, ayarları günceller ve verileri yeniden yükler."""
+        folder = QFileDialog.getExistingDirectory(self.main_window, "Proje Klasörü Seçin", self.project_path)
+        if folder:
+            self.settings["project_path"] = folder
+            self.project_path = folder
+            data_manager.save_settings(self.settings)
+            
+            # Yeni klasörden verileri yükle
+            self.characters = data_manager.load_characters(self.project_path)
+            self.story_data = data_manager.load_story_data(self.project_path)
+            self.country_data = data_manager.load_country_data(self.project_path) # YENİ YÜKLEME
+            
+            self._update_character_list()
+            self._update_outline_list()
+            self._update_country_list() # YENİ LİSTE GÜNCELLEME
+            
+            self.main_window.statusBar().showMessage(f"Proje klasörü ayarlandı: {folder}", 5000)
+        else:
+            self.main_window.statusBar().showMessage("Proje klasörü seçimi iptal edildi.", 3000)
+            
+            
+            
+    def _refresh_country_data(self):
+        """Dosyadan ülke verisini yeniden yükler ve UI listelerini günceller."""
+        # Veriyi yeniden oku
+        self.country_data = data_manager.load_country_data(self.project_path)
+
+        # Ülke listesini güncelle
+        self._update_country_list()
+
+        # Ülke Hikayeleri listesini güncelle
+        self._populate_country_stories()
+
+        self.main_window.statusBar().showMessage("Veriler yenilendi.", 3000)
+
+
+    # --- KARAKTER YÖNETİM METOTLARI (ORİJİNAL KOD GERİ YÜKLENDİ) ---
+
+    def _generate_character_code(self):
+        """Yeni karakter için AA-01 formatında benzersiz kod üretir."""
+        current_count = len(self.characters)
+        
+        letter_index = current_count // 100
+        number_index = current_count % 100
+        
+        alphabet = ascii_uppercase
+        
+        if letter_index >= 26 * 26:
+            return f"OVERFLOW-{current_count}"
+        
+        first_letter_index = letter_index // 26 
+        first_letter = alphabet[first_letter_index]
+        second_letter_index = letter_index % 26
+        second_letter = alphabet[second_letter_index]
+
+        number_str = f"{number_index:02d}"
+
+        return f"{first_letter}{second_letter}-{number_str}"
+
+    def get_character_data_from_ui(self, code):
+        """Karakter detaylarını UI'dan alıp dict olarak döndürür."""
+        name = self.main_window.entries.get("Ad").text().strip()
+        
+        if not name:
+            QMessageBox.warning(self.main_window, "Hata", "Karakter adı boş olamaz.")
+            return None
+
+        has_magic = self.main_window.check_magic.isChecked()
+        magic_type = ""
+        
+        if has_magic:
+            magic_type = self.main_window.combo_magic_type.currentText()
+            if magic_type == "Seçiniz":
+                 QMessageBox.warning(self.main_window, "Hata", "Büyü Gücü seçiliyken Büyü Tipi seçilmelidir.")
+                 return None
+
+        data = {
+            "Karakter Kodu": code,
+            "Ad": name,
+            "Ünvan": self.main_window.entries.get("Ünvan").text().strip(),
+            "Cinsiyet": self.main_window.combo_gender.currentText(),
+            "Millet": self.main_window.combo_nation.currentText(),
+            "Ülke": self.main_window.combo_country.currentText(),
+            "Büyü Gücü Var": has_magic,
+            "Büyü Tipi": magic_type,
+            "Açıklama": self.main_window.middle_text_edit.toPlainText().strip(),
+            "Görsel": self.current_image_base64
+        }
+        return data
+
+    def add_character(self):
+        """Yeni karakteri ekler ve listeyi günceller."""
+        code = self._generate_character_code()
+        data = self.get_character_data_from_ui(code)
+        
+        if data:
+            self.characters.append(data)
+            data_manager.save_characters(self.project_path, self.characters)
+            self._update_character_list()
+            self._clear_character_details()
+            self.main_window.statusBar().showMessage(f"Karakter '{data['Ad']}' başarıyla eklendi. Kod: {code}", 5000)
+
+    def update_character(self):
+        """Mevcut karakteri günceller ve kaydeder."""
+        char_code = self.main_window.entries.get("Kod").text().strip()
+        
+        if not char_code:
+            QMessageBox.warning(self.main_window, "Uyarı", "Güncellemek için karakteri listeden yüklemelisiniz.")
+            return
+
+        data = self.get_character_data_from_ui(char_code)
+        
+        if data:
+            index = next((i for i, k in enumerate(self.characters) if k.get("Karakter Kodu") == char_code), -1)
+            if index != -1:
+                self.characters[index] = data
+                data_manager.save_characters(self.project_path, self.characters)
+                self._update_character_list()
+                self.main_window.statusBar().showMessage(f"Karakter '{data['Ad']}' başarıyla güncellendi.", 5000)
+            else:
+                QMessageBox.critical(self.main_window, "Hata", "Güncellenecek karakter listede bulunamadı.")
+    
+    def delete_selected_characters(self):
+        """Seçili karakteri listeden ve veriden siler, onay ister."""
+        selected_items = self.main_window.list_karakterler.selectedItems()
+
+        if not selected_items:
+            self.main_window.statusBar().showMessage("Silinecek bir karakter seçmediniz.", 3000)
+            return
+
+        # 1. ONAY KUTUSU (QMessageBox) OLUŞTURMA
+        reply = QMessageBox.question(
+            self.main_window, 
+            "Karakter Silme Onayı",
+            "Bu karakteri kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+            QMessageBox.Yes | QMessageBox.No, 
+            QMessageBox.No
+        )
+        
+        # Kullanıcı Hayır derse (QMessageBox.No) işlemi iptal et
+        if reply == QMessageBox.No:
+            self.main_window.statusBar().showMessage("Karakter silme işlemi iptal edildi.", 3000)
+            return
+        
+        # 2. SİLME İŞLEMİ (Sadece Kullanıcı Evet derse devam eder)
+        
+        selected_text = selected_items[0].text()
+        char_code = selected_text[1:selected_text.find(']')]
+        
+        # Veri listesinden kaldır
+        self.characters = [c for c in self.characters if c["Karakter Kodu"] != char_code]
+        
+        # UI'dan kaldır
+        self.main_window.list_karakterler.takeItem(self.main_window.list_karakterler.row(selected_items[0]))
+        
+        # Temizle ve Kaydet
+        self._clear_character_details()
+        self.current_character_code = None
+        data_manager.save_characters(self.project_path, self.characters)
+        
+        self.main_window.statusBar().showMessage(f"Karakter {char_code} başarıyla silindi.", 5000)
+
+    def _update_character_list(self, filtered_list=None):
+        """Karakter listesini günceller."""
+        self.main_window.list_karakterler.clear()
+        data_to_show = filtered_list if filtered_list is not None else self.characters
+        
+        for karakter in data_to_show:
+            display_text = f"[{karakter['Karakter Kodu']}] {karakter['Ad']} ({karakter['Millet']})"
+            item = QListWidgetItem(display_text)
+            self.main_window.list_karakterler.addItem(item)
+            
+    def _apply_filter(self, text):
+        """Karakter listesini girilen metne göre filtreler."""
+        filter_text = text.strip().lower()
+        filtered_list = []
+        if filter_text:
+            for karakter in self.characters:
+                ad_lower = karakter.get('Ad', '').lower()
+                kod_lower = karakter.get('Karakter Kodu', '').lower()
+                if filter_text in ad_lower or filter_text in kod_lower:
+                    filtered_list.append(karakter)
+        else:
+            filtered_list = self.characters
+        self._update_character_list(filtered_list)
+
+    def _clear_filter(self):
+        """Filtre alanını temizler ve listeyi sıfırlar."""
+        self.main_window.entry_filter.clear()
+        self._update_character_list()
+        
+    def load_selected_character(self):
+        """Seçilen karakteri listeden yükler ve detaylarını gösterir."""
+        selected_items = self.main_window.list_karakterler.selectedItems()
+        if not selected_items:
+            self.main_window.statusBar().showMessage("Yüklenecek bir karakter seçmediniz.", 3000)
+            return
+            
+        selected_text = selected_items[0].text()
+        char_code = selected_text[1:selected_text.find(']')]
+        
+        self._display_character_details(char_code)
+
+    def _load_character_details_from_list(self, item):
+        """itemClicked sinyali ile karakter detaylarını yükler."""
+        selected_text = item.text()
+        char_code = selected_text[1:selected_text.find(']')]
+        self._display_character_details(char_code)
+
+    def _display_character_details(self, char_code):
+        """Karakter detaylarını UI'a yansıtır."""
+        karakter = next((k for k in self.characters if k["Karakter Kodu"] == char_code), None)
+        if karakter:
+            self.main_window.entries.get("Kod").setText(karakter.get("Karakter Kodu", ""))
+            self.main_window.entries.get("Ad").setText(karakter.get("Ad", ""))
+            self.main_window.entries.get("Ünvan").setText(karakter.get("Ünvan", ""))
+
+            # Comboboxlar için index bulma
+            self.main_window.combo_gender.setCurrentIndex(self.main_window.combo_gender.findText(karakter.get("Cinsiyet", "Bilinmiyor")))
+            self.main_window.combo_nation.setCurrentIndex(self.main_window.combo_nation.findText(karakter.get("Millet", MILLTETLER[-1])))
+            self.main_window.combo_country.setCurrentIndex(self.main_window.combo_country.findText(karakter.get("Ülke", ULKELER[-1])))
+
+            has_magic = karakter.get("Büyü Gücü Var", False)
+            self.main_window.check_magic.setChecked(has_magic)
+            magic_type = karakter.get("Büyü Tipi", "Seçiniz")
+            self.main_window.combo_magic_type.setCurrentIndex(self.main_window.combo_magic_type.findText(magic_type))
+
+            self.main_window.middle_text_edit.setText(karakter.get("Açıklama", ""))
+            
+            # Görseli yükle
+            self.current_image_base64 = karakter.get("Görsel", "")
+            self._display_image_from_base64(self.current_image_base64)
+            
+            self.current_character_code = char_code
+            self.main_window.statusBar().showMessage(f"Karakter '{karakter['Ad']}' yüklendi.", 3000)
+
+    def _clear_character_details(self):
+        """Karakter detay form alanlarını temizler."""
+        self.main_window.entries.get("Kod").clear()
+        self.main_window.entries.get("Ad").clear()
+        self.main_window.entries.get("Ünvan").clear()
+        self.main_window.combo_gender.setCurrentIndex(self.main_window.combo_gender.findText("Bilinmiyor"))
+        self.main_window.combo_nation.setCurrentIndex(self.main_window.combo_nation.findText(MILLTETLER[-1]))
+        self.main_window.combo_country.setCurrentIndex(self.main_window.combo_country.findText(ULKELER[-1]))
+        self.main_window.check_magic.setChecked(False)
+        self.main_window.combo_magic_type.setCurrentIndex(self.main_window.combo_magic_type.findText("Seçiniz"))
+        self.main_window.middle_text_edit.clear()
+        self.delete_photo(silent=True)
+        self.current_character_code = None
+        self.main_window.statusBar().showMessage("Karakter detayları temizlendi.", 3000)
+
+    # --- GÖRSEL YÖNETİM METOTLARI (ORİJİNAL KOD GERİ YÜKLENDİ) ---
+    def add_photo(self):
+        """Görseli Base64 olarak yükler ve UI'da gösterir."""
+        file_path, _ = QFileDialog.getOpenFileName(self.main_window, "Görsel Seç", "", "Görsel Dosyaları (*.png *.jpg *.jpeg)")
+        if file_path:
+            try:
+                img = Image.open(file_path)
+                buffer = io.BytesIO()
+                # Maksimum 200KB'lık JPG kalitesinde sıkıştır
+                img.save(buffer, format="JPEG", quality=75)
+                base64_str = base64.b64encode(buffer.getvalue()).decode('utf-8')
+                self.current_image_base64 = base64_str
+                self._display_image_from_base64(base64_str)
+                self.main_window.statusBar().showMessage("Görsel yüklendi. Kaydetmek için Ekle/Güncelle'ye basın.", 5000)
+            except Exception as e:
+                QMessageBox.critical(self.main_window, "Görsel Hatası", f"Görsel yüklenemedi: {e}")
+
+    def delete_photo(self, silent=False):
+        """Mevcut görseli siler ve UI'ı temizler."""
+        self.current_image_base64 = ""
+        self.main_window.label_image.setPixmap(QPixmap())
+        self.main_window.label_image.setText("Görsel Yok")
+        if not silent:
+            self.main_window.statusBar().showMessage("Görsel silindi. Kaydetmek için Ekle/Güncelle'ye basın.", 3000)
+
+    def _display_image_from_base64(self, base64_str):
+        """Base64 string'ini QPixmap'e dönüştürür ve QLabel'de gösterir."""
+        if base64_str:
+            try:
+                img_data = base64.b64decode(base64_str)
+                pixmap = QPixmap()
+                pixmap.loadFromData(QByteArray(img_data))
+                
+                # QLabel boyutuna uydurmak için ölçekle
+                scaled_pixmap = pixmap.scaled(
+                    self.main_window.label_image.size(), 
+                    Qt.AspectRatioMode.KeepAspectRatio, 
+                    Qt.TransformationMode.SmoothTransformation
+                )
+                self.main_window.label_image.setPixmap(scaled_pixmap)
+                self.main_window.label_image.setText("")
+            except Exception as e:
+                self.main_window.label_image.setText("Görsel Yüklenemedi")
+                print(f"Görsel Base64 yükleme hatası: {e}")
+        else:
+            self.main_window.label_image.setPixmap(QPixmap())
+            self.main_window.label_image.setText("Görsel Yok")
+
+    # --- HİKAYE YÖNETİM METOTLARI (ORİJİNAL KOD GERİ YÜKLENDİ) ---
+
+    def _generate_chapter_id(self):
+        """Yeni bölüm için S-01 formatında benzersiz ID üretir."""
+        count = len(self.story_data) + 1
+        return f"S-{count:02d}"
+
+    def get_chapter_data_from_ui(self, chapter_id):
+        """Bölüm detaylarını UI'dan alıp dict olarak döndürür."""
+        title = self.main_window.entry_chapter_title.text().strip()
+        content = self.main_window.text_chapter_content.toPlainText().strip()
+
+        if not title:
+            QMessageBox.warning(self.main_window, "Hata", "Bölüm başlığı boş olamaz.")
+            return None
+
+        data = {
+            "id": chapter_id,
+            "title": title,
+            "content": content
+        }
+        return data
+
+    def add_chapter(self):
+        """Yeni bölümü ekler ve listeyi günceller."""
+        new_id = self._generate_chapter_id()
+        data = self.get_chapter_data_from_ui(new_id)
+        
+        if data:
+            self.story_data.append(data)
+            data_manager.save_story_data(self.project_path, self.story_data)
+            self._update_outline_list()
+            self._clear_chapter_ui()
+            self.main_window.statusBar().showMessage(f"Bölüm '{data['title']}' başarıyla eklendi.", 5000)
+
+    def delete_chapter(self):
+        """Seçili bölümü siler, onay ister."""
+        selected_items = self.main_window.list_outline.selectedItems()
+        if not selected_items:
+            self.main_window.statusBar().showMessage("Silinecek bir bölüm seçmediniz.", 3000)
+            return
+
+        reply = QMessageBox.question(self.main_window, 'Bölüm Silme Onayı',
+            "Seçilen bölümü kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            selected_text = selected_items[0].text()
+            # Başlıktan ID'yi al
+            chapter_id = selected_text[1:selected_text.find(']')]
+            
+            # Veri listesinden kaldır
+            self.story_data = [d for d in self.story_data if d["id"] != chapter_id]
+            
+            # Yeniden numaralandır ve kaydet
+            self._re_number_chapters()
+            data_manager.save_story_data(self.project_path, self.story_data)
+            
+            self.current_chapter_id = None
+            self._update_outline_list()
+            self._clear_chapter_ui()
+            
+            self.main_window.statusBar().showMessage(f"Bölüm {chapter_id} başarıyla silindi.", 5000)
+            
+    def save_current_chapter(self):
+        """Mevcut bölümün içeriğini günceller ve kaydeder."""
+        if not self.current_chapter_id:
+            QMessageBox.warning(self.main_window, "Uyarı", "Kaydetmek için listeden bir bölüm seçmelisiniz.")
+            return
+
+        data = self.get_chapter_data_from_ui(self.current_chapter_id)
+
+        if data:
+            index = next((i for i, d in enumerate(self.story_data) if d.get("id") == self.current_chapter_id), -1)
+            if index != -1:
+                # Sadece başlık ve içeriği güncelle
+                self.story_data[index]["title"] = data["title"]
+                self.story_data[index]["content"] = data["content"]
+                
+                data_manager.save_story_data(self.project_path, self.story_data)
+                
+                # Listeyi sadece başlık değiştiyse güncellemek için
+                self._update_outline_list() 
+                
+                self.main_window.statusBar().showMessage(f"Bölüm '{data['title']}' içeriği başarıyla kaydedildi.", 5000)
+            else:
+                QMessageBox.critical(self.main_window, "Hata", "Kaydedilecek bölüm listede bulunamadı.")
+
+    def _update_outline_list(self):
+        """Bölüm listesini günceller."""
+        self.main_window.list_outline.clear()
+        for chapter in self.story_data:
+            display_text = f"[{chapter['id']}] {chapter['title']}"
+            item = QListWidgetItem(display_text)
+            self.main_window.list_outline.addItem(item)
+            
+    def load_selected_chapter_details(self, item):
+        """Seçilen bölümün detaylarını UI'a yansıtır."""
+        selected_text = item.text()
+        chapter_id = selected_text[1:selected_text.find(']')]
+        
+        chapter = next((d for d in self.story_data if d["id"] == chapter_id), None)
+        
+        if chapter:
+            self.main_window.entry_chapter_title.setText(chapter.get("title", ""))
+            self.main_window.text_chapter_content.setText(chapter.get("content", ""))
+            self.current_chapter_id = chapter_id
+            self._update_word_count()
+            self.main_window.statusBar().showMessage(f"Bölüm '{chapter['title']}' yüklendi.", 3000)
+
+    def _clear_chapter_ui(self):
+        """Bölüm sekmesindeki alanları temizler."""
+        self.main_window.entry_chapter_title.clear()
+        self.main_window.text_chapter_content.clear()
+        self.current_chapter_id = None
+        self._update_word_count()
+        self.main_window.statusBar().showMessage("Bölüm detayları temizlendi.", 3000)
+
+    def _update_word_count(self):
+        """Metin alanındaki kelime sayısını hesaplayıp gösterir."""
+        content = self.main_window.text_chapter_content.toPlainText()
+        # Kelime sayısını boşluklara göre hesapla (Basit yöntem)
+        word_count = len(re.findall(r'\b\w+\b', content))
+        self.main_window.label_word_count.setText(f"Kelime Sayısı: {word_count}")
+
+    def move_chapter(self, direction):
+        """Seçili bölümü listede yukarı veya aşağı taşır."""
+        selected_items = self.main_window.list_outline.selectedItems()
+        if not selected_items:
+            return
+
+        current_row = self.main_window.list_outline.row(selected_items[0])
+        new_row = current_row + (-1 if direction == 'up' else 1)
+        
+        if 0 <= new_row < self.main_window.list_outline.count():
+            # Listeyi UI'da taşı
+            item = self.main_window.list_outline.takeItem(current_row)
+            self.main_window.list_outline.insertItem(new_row, item)
+            self.main_window.list_outline.setCurrentItem(item)
+
+            # Veri listesini güncelle
+            self.story_data.insert(new_row, self.story_data.pop(current_row))
+            
+            # Yeniden numaralandır ve kaydet
+            self._re_number_chapters()
+            data_manager.save_story_data(self.project_path, self.story_data)
+            self._update_outline_list() # Yeni numaraları yansıtmak için
+            self.main_window.statusBar().showMessage("Bölüm sırası güncellendi ve kaydedildi.", 3000)
+
+    def _trigger_reorder_check(self):
+        """Sürükle bırak sonrası sıralama kontrolünü başlatmak için zamanlayıcıyı kullanır."""
+        # QTimer'ı kısa bir gecikmeyle (örneğin 100ms) başlat
+        # Bu, sürükleme bittiğinde sıralamayı güncelleme işlevini çağırır.
+        self.reorder_timer.start(100)
+        
+    def _handle_reorder(self):
+        """Sürükle bırak sonrası veri sırasını günceller, yeniden numaralandırır ve kaydeder."""
+        new_order = []
+        
+        # UI'daki yeni sıraya göre veriyi yeniden düzenle
+        for i in range(self.main_window.list_outline.count()):
+            item = self.main_window.list_outline.item(i)
+            # Listeden ID'yi al
+            selected_text = item.text()
+            chapter_id = selected_text[1:selected_text.find(']')]
+            
+            # Eski veri listesinden ilgili öğeyi bul
+            chapter = next((d for d in self.story_data if d["id"] == chapter_id), None)
+            if chapter:
+                new_order.append(chapter)
+
+        self.story_data = new_order
+        
+        # Yeniden numaralandır ve kaydet
+        self._re_number_chapters()
+        data_manager.save_story_data(self.project_path, self.story_data)
+        self._update_outline_list() # Yeni numaraları yansıtmak için
+        self.main_window.statusBar().showMessage("Bölüm sırası sürükle-bırak ile güncellendi ve kaydedildi.", 5000)
+
+    def _re_number_chapters(self):
+        """Bölüm listesindeki ID'leri sıfırdan ve doğru sırada numaralandırır."""
+        for i, chapter in enumerate(self.story_data):
+            # i+1 ile başlayıp S-01, S-02 formatında yeni ID ata
+            chapter["id"] = f"S-{i+1:02d}"
+
+    # --- YENİ METOTLAR: ÜLKE YÖNETİMİ (QTreeWidget Desteği Eklendi) ---
+
+    def _generate_country_id(self):
+        """Yeni ülke için C-01 formatında benzersiz ID üretir."""
+        count = len(self.country_data) + 1
+        return f"C-{count:02d}"
+
+    def _update_country_list(self):
+        """Ülke listesini günceller."""
+        self.main_window.list_countries.clear()
+        for country in self.country_data:
+            display_text = f"[{country['id']}] {country['name']}"
+            item = QListWidgetItem(display_text)
+            self.main_window.list_countries.addItem(item)
+            
+    def _update_gov_detail_in_memory(self, item_to_update=None):
+        """Aktif seçili ağaç öğesinin Detay bilgisini UI'dan alıp öğenin UserRole'una kaydeder."""
+        # Eğer manuel olarak bir item verilmediyse, aktif seçili öğeyi kullan
+        if item_to_update is None:
+            item_to_update = self.main_window.tree_country_gov.currentItem()
+
+        # Eğer hala bir öğe seçiliyse ve text_gov_detail alanı mevcutsa kaydetme işlemini yap
+        if item_to_update:
+            # Sadece seçili öğenin detayını kaydetmek için text_gov_detail içeriğini al
+            new_detail = self.main_window.text_gov_detail.toPlainText()
+            # Detay bilgisini QTreeItem'in UserRole'una kaydet (Qt.UserRole = 32)
+            item_to_update.setData(0, Qt.UserRole, new_detail) 
+            return True
+        return False
+        
+    def _load_gov_item_detail(self, current_item, previous_item):
+        """Ağaçta bir öğe seçildiğinde, önceki öğenin detayını kaydeder ve yeni öğenin detayını yükler."""
+        # 1. Önceki öğenin içeriğini kaydet (Eğer varsa)
+        if previous_item:
+            # Önceki öğenin detayını kaydetmek için _update_gov_detail_in_memory metodunu kullan
+            self._update_gov_detail_in_memory(previous_item)
+            
+        # 2. Yeni öğenin içeriğini yükle
+        if current_item:
+            # Detayı UserRole'dan al
+            detail = current_item.data(0, Qt.UserRole) 
+            # text_gov_detail UI alanını güncelle
+            self.main_window.text_gov_detail.setText(detail if detail is not None else "")
+            self.main_window.statusBar().showMessage(f"'{current_item.text(0)}' birimi detayı yüklendi.", 1000)
+        else:
+            # Hiçbir öğe seçili değilse alanı temizle
+            self.main_window.text_gov_detail.clear()
+            
+    def _read_tree_to_list(self, root_item=None):
+        """QTreeWidget'tan veriyi özyinelemeli olarak liste/sözlük yapısına dönüştürür.
+        Detay bilgisi QTreeItem'in UserRole'undan okunur."""
+        data_list = []
+        
+        # SADECE root_item None İSE (yani en üst seviye çağrıda) son seçili öğenin güncel detayını hafızaya kaydet
+        if root_item is None:
+            self._update_gov_detail_in_memory() 
+            root_item = self.main_window.tree_country_gov.invisibleRootItem()
+            
+        for i in range(root_item.childCount()):
+            child = root_item.child(i)
+            
+            # Detayı UserRole'dan oku
+            detail_data = child.data(0, Qt.UserRole) 
+            
+            item_data = {
+                "birim": child.text(0),
+                "detay": detail_data if detail_data is not None else "",
+                "alt_birimler": self._read_tree_to_list(child) # Özyinelemeli çağrı
+            }
+            data_list.append(item_data)
+            
+        return data_list
+
+    def _load_list_to_tree(self, parent_item, data_list):
+        """Verilen veri listesinden QTreeWidget'a özyinelemeli olarak öğeler ekler.
+        Detay bilgisini QTreeItem'in UserRole'una yazar."""
+        for item_data in data_list:
+            # Tek sütunlu öğe oluştur
+            new_item = QTreeWidgetItem(parent_item, [item_data["birim"]]) 
+            
+            # Detay bilgisini UserRole'a kaydet
+            new_item.setData(0, Qt.UserRole, item_data.get("detay", ""))
+            
+            # Tüm öğeleri düzenlenebilir yap
+            new_item.setFlags(new_item.flags() | Qt.ItemFlag.ItemIsEditable) 
+            
+            # Eğer alt birimler varsa, özyinelemeli olarak yükle
+            if item_data.get("alt_birimler"):
+                self._load_list_to_tree(new_item, item_data["alt_birimler"])
+                
+    def _create_tree_item(self, parent_item, birim, detay):
+        """Yeni bir QTreeWidget öğesi oluşturur, düzenlenebilir hale getirir ve detayı UserRole'a kaydeder."""
+        # Yeni öğeyi sadece birim adı ile oluştur
+        new_item = QTreeWidgetItem(parent_item, [birim]) 
+        
+        # Detay bilgisini UserRole'a kaydet
+        new_item.setData(0, Qt.UserRole, detay)
+        
+        new_item.setFlags(new_item.flags() | Qt.ItemFlag.ItemIsEditable) 
+        self.main_window.tree_country_gov.setCurrentItem(new_item)
+        return new_item
+
+    def add_gov_item(self):
+        """Ağaç yapısına ana düzeyde yeni bir birim ekler."""
+        parent_item = self.main_window.tree_country_gov.invisibleRootItem()
+        # Yeni birim eklendiğinde, detay penceresine varsayılan metni yüklemek için setCurrentItem kullanırız.
+        new_item = self._create_tree_item(parent_item, "Yeni Ana Birim", "Detay giriniz")
+        self.main_window.statusBar().showMessage("Ana birim eklendi. Düzenlemek için çift tıklayın.", 3000)
+
+    def add_gov_child(self):
+        """Seçili birimin altına yeni bir alt birim ekler."""
+        selected_item = self.main_window.tree_country_gov.currentItem()
+        if not selected_item:
+            QMessageBox.warning(self.main_window, "Uyarı", "Alt birim eklemek için listeden bir öğe seçmelisiniz.")
+            return
+
+        # Yeni birim eklendiğinde, detay penceresine varsayılan metni yüklemek için setCurrentItem kullanırız.
+        new_item = self._create_tree_item(selected_item, "Yeni Alt Birim", "Detay giriniz")
+        selected_item.setExpanded(True) # Eklendikten sonra genişlet
+        self.main_window.statusBar().showMessage("Alt birim eklendi. Düzenlemek için çift tıklayın.", 3000)
+    
+    def remove_gov_item(self):
+        """Seçili ağaç öğesini ve varsa alt öğelerini siler."""
+        selected_item = self.main_window.tree_country_gov.currentItem()
+        if not selected_item:
+            QMessageBox.warning(self.main_window, "Uyarı", "Silmek için listeden bir öğe seçmelisiniz.")
+            return
+
+        reply = QMessageBox.question(self.main_window, 'Silme Onayı',
+            f"'{selected_item.text(0)}' birimini ve tüm alt birimlerini silmek istediğinizden emin misiniz?",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            parent = selected_item.parent()
+            if parent:
+                parent.removeChild(selected_item)
+            else:
+                # Ana öğe ise (root'un çocuğu)
+                root = self.main_window.tree_country_gov.invisibleRootItem()
+                root.removeChild(selected_item)
+                
+            # Detay penceresini temizle
+            self.main_window.text_gov_detail.clear()
+            
+            self.main_window.statusBar().showMessage("Seçili birim başarıyla silindi.", 3000)
+
+
+    def get_country_data_from_ui(self, country_id):
+        """Ülke detaylarını UI'dan alıp dict olarak döndürür."""
+        name = self.main_window.entry_country_name.text().strip()
+        geo_details = self.main_window.text_country_geo.toPlainText().strip()
+        story = self.main_window.text_country_story.toPlainText().strip()
+        
+        if not name:
+            QMessageBox.warning(self.main_window, "Hata", "Ülke adı boş olamaz.")
+            return None
+        
+        # Hükümet detaylarını TreeWidget'tan al. _read_tree_to_list metodu,
+        # aktif öğenin detayını kaydetme işlemini zaten içerir.
+        gov_details = self._read_tree_to_list()
+
+        data = {
+            "id": country_id,
+            "name": name,
+            "government_details": gov_details, # Artık liste/sözlük yapısı
+            "geography_details": geo_details,
+            "story": story
+        }
+        return data
+
+    def add_country(self):
+        """Yeni ülkeyi ekler ve listeyi günceller."""
+        new_id = self._generate_country_id()
+        # Yeni ülke eklenirken, hükümet detayları boş bir TreeWidget'tan okunur.
+        data = self.get_country_data_from_ui(new_id)
+
+        if data:
+            self.country_data.append(data)
+            data_manager.save_country_data(self.project_path, self.country_data)
+            self._update_country_list()
+            self._clear_country_ui()
+            self.main_window.statusBar().showMessage(f"Ülke '{data['name']}' başarıyla eklendi. Kod: {new_id}", 5000)
+
+    def save_current_country(self):
+        """Mevcut ülkenin detaylarını günceller ve kaydeder."""
+        if not self.current_country_id:
+            QMessageBox.warning(self.main_window, "Uyarı", "Kaydetmek için listeden bir ülke seçmelisiniz.")
+            return
+
+        data = self.get_country_data_from_ui(self.current_country_id)
+        
+        if data:
+            index = next((i for i, c in enumerate(self.country_data) if c.get("id") == self.current_country_id), -1)
+            
+            if index != -1:
+                self.country_data[index] = data # Tüm veriyi değiştir
+                data_manager.save_country_data(self.project_path, self.country_data)
+                self._update_country_list()
+                self.main_window.statusBar().showMessage(f"Ülke '{data['name']}' bilgileri başarıyla kaydedildi.", 5000)
+            else:
+                QMessageBox.critical(self.main_window, "Hata", "Kaydedilecek ülke listede bulunamadı.")
+                                              
+    def load_country_story(self, item):
+        """Seçili ülkenin hikayesini sağ taraftaki metin alanına yükler."""
+        country_id = item.data(Qt.UserRole)                     # Listeden seçilen ülkenin adı
+
+        # country_data içinde eşleşen ülkeyi bul
+        country = next((c for c in self.country_data if c["name"] == country_name), None)
+
+        if country:
+            # Seçilen ülkenin id'sini sakla (kaydetme işlemi için)
+            self.current_country_id = country.get("id")
+
+            # Hikayeyi metin alanına yaz
+            story = country.get("story", "")
+            self.main_window.text_country_story.setText(story)
+
+            self.main_window.statusBar().showMessage(f"'{country_name}' hikayesi yüklendi.", 3000)
+        else:
+            self.main_window.statusBar().showMessage(f"'{country_name}' için hikaye bulunamadı.", 3000)
+        
+            
+    def load_selected_country_details(self, item):
+        """Seçilen ülkenin detaylarını UI'a yansıtır."""
+        selected_text = item.text()
+        country_id = selected_text[1:selected_text.find(']')]
+        
+        country = next((c for c in self.country_data if c["id"] == country_id), None)
+        
+        if country:
+            self.main_window.entry_country_name.setText(country.get("name", ""))
+            self.main_window.text_country_geo.setText(country.get("geography_details", ""))
+            
+            # Yönetim Biçimini Yükle (QTreeWidget)
+            self.main_window.tree_country_gov.clear()
+            
+            gov_details = country.get("government_details")
+            root_item = self.main_window.tree_country_gov.invisibleRootItem()
+            
+            # Ağacı yeniden yükle
+            if gov_details and isinstance(gov_details, list):
+                self._load_list_to_tree(root_item, gov_details)
+            elif isinstance(gov_details, str) and gov_details.strip():
+                 # Eğer veri eski tip (string) ise, yeni yapıya uygun olarak tek bir öğe oluştur
+                 self._create_tree_item(root_item, "Eski Detay (Güncelleyin)", gov_details)
+            
+            # YENİ EKLEME: Detay penceresini temizle ve ilk öğeyi seç (Böylece _load_gov_item_detail tetiklenir)
+            self.main_window.text_gov_detail.clear()
+            first_item = self.main_window.tree_country_gov.topLevelItem(0)
+            if first_item:
+                self.main_window.tree_country_gov.setCurrentItem(first_item)
+            
+            self.current_country_id = country_id
+            self.main_window.statusBar().showMessage(f"Ülke '{country['name']}' yüklendi.", 3000)
+
+    def delete_country(self):
+        """Seçili ülkeyi siler, onay ister."""
+        selected_items = self.main_window.list_countries.selectedItems()
+        if not selected_items:
+            self.main_window.statusBar().showMessage("Silinecek bir ülke seçmediniz.", 3000)
+            return
+
+        reply = QMessageBox.question(self.main_window, 'Silme Onayı',
+            "Seçilen ülkeyi kalıcı olarak silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+            QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+
+        if reply == QMessageBox.Yes:
+            selected_text = selected_items[0].text()
+            country_id_to_delete = selected_text[1:selected_text.find(']')]
+            
+            self.country_data = [c for c in self.country_data if c["id"] != country_id_to_delete]
+            data_manager.save_country_data(self.project_path, self.country_data)
+            
+            self.current_country_id = None
+            self._update_country_list()
+            self._clear_country_ui()
+            
+            self.main_window.statusBar().showMessage(f"Ülke {country_id_to_delete} başarıyla silindi.", 5000)
+
+    def _clear_country_ui(self):
+        """Ülke sekmesindeki alanları temizler."""
+        self.main_window.entry_country_name.clear()
+        self.main_window.text_country_geo.clear()
+        self.main_window.tree_country_gov.clear() # DEĞİŞTİ
+        self.main_window.text_gov_detail.clear() # YENİ EKLEME
+        self.current_country_id = None
+        self.main_window.statusBar().showMessage("Ülke detayları temizlendi.", 3000)
+        
+        
+    def save_country_story(self):
+        """Seçili ülkenin hikayesini kaydeder."""
+        if not self.current_country_id:
+            QMessageBox.warning(self.main_window, "Uyarı", "Kaydetmek için listeden bir ülke seçmelisiniz.")
+            return
+
+        # UI'dan güncel hikaye metnini al
+        story_text = self.main_window.text_country_story.toPlainText().strip()
+
+        # country_data içinde ilgili ülkeyi bul ve story alanını güncelle
+        country = next((c for c in self.country_data if c.get("id") == self.current_country_id), None)
+        if country:
+            country["story"] = story_text
+            data_manager.save_country_data(self.project_path, self.country_data)
+            self.main_window.statusBar().showMessage(f"'{country['name']}' hikayesi kaydedildi.", 3000)
+        else:
+            QMessageBox.critical(self.main_window, "Hata", "Ülke bulunamadı.")
+
+    # --- EKSİK METOT EKLEMESİ ---
+    def _auto_save(self):
+        """Tüm verileri (karakter, hikaye, ülke) otomatik olarak kaydeder."""
+        # data_manager.save_settings(self.settings) # Ayarları sürekli kaydetmeye gerek yok
+        data_manager.save_characters(self.project_path, self.characters)
+        data_manager.save_story_data(self.project_path, self.story_data)
+        data_manager.save_country_data(self.project_path, self.country_data)
+        # Sadece otomatik kaydı bildiren kısa bir mesaj
+        self.main_window.statusBar().showMessage("Otomatik kaydetme başarılı.", 2000)
+
+    def run(self):
+        """Uygulama döngüsünü başlatır."""
+        self.main_window.show()
+        sys.exit(self.app.exec())
+
+
+if __name__ == '__main__':
+    app = StoryApp()
+    app.run()

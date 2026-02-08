@@ -1,0 +1,387 @@
+[
+    {
+        "id": "C-01",
+        "name": "Zhaerri İmparatorluğu",
+        "government_details": [
+            {
+                "birim": "Konsey",
+                "detay": "Konsey, ülkenin mutlak karar birimidir. Konsey yalnızca birden fazla birimi etkileyen kararlarda toplanır. Karar alınması için 4'e 2 oy çokluğu gerekir. Eşit sayıda oy çıkar ise oylama bir sonraki güne kalır. Tekrar eşitlik çıkması durumunda ise red kararı verilir.\n\nBirimlerin Oy Oranları; Ordu (1), Ekonomi (1), Soylu (2), İstihbarat (1), Halk (1).\n\nÖrnek; Ordu biriminde Kara Generali değişecek ise Ordu bu kararı tek başına kendi içerisinde alır. Ordu asker sayısını arttırmak istiyor ise bu hem imparatorluğun ekonomisi hem de asker alınacak nüfustan kaynaklı halkı etkilediği için talep Konsey'e sunulur.",
+                "alt_birimler": [
+                    {
+                        "birim": "Ordu",
+                        "detay": "Ordu, imparatorluğun iç ve dış güvenliğinden sorumludur. Savaşlarda kullanılacak taktiklerde İstihbarat birimi ile koordine biçimde çalışır. Ordu birimi genelde Konsey'de sessiz kalır ve siyasi meselelerden uzak durmayı tercih eder. Ordu birimini Konsey'de Yüce General temsil eder.",
+                        "alt_birimler": [
+                            {
+                                "birim": "Yüce General",
+                                "detay": "Yüce General, Ordu biriminin Konsey'deki temsilcisi ve içindeki kararlarda mutlak karar mercidir.",
+                                "alt_birimler": [
+                                    {
+                                        "birim": "Kara General",
+                                        "detay": "Kara General, kara ordularının en üst rütbesidir. Yüce ve Deniz generalleri ile ortak belirledikleri planlar doğrultusunda orduların yönetimi, askerlerin rütbe değişim törenleri gibi görevleri üstlenir. Kara General genelde Yüce General'in ölümü veya emekliliği durumunda yeni Yüce General olur.",
+                                        "alt_birimler": []
+                                    },
+                                    {
+                                        "birim": "Deniz General",
+                                        "detay": "Deniz General, Althera'nın Batı Denizlerindeki Zhaerri bölgelerinin güvenliği ve hakimiyetinden sorumludur. Donanmanın en yüksek rütbesidir. Yüce General ve diğer Askeri birimler ile ortak olarak hareketların uygulanmasından sorumludur. Zhaerri limanlarına gelen ticaret gemileri de donanma tarafından limana yanaşmadan önce kontrol edilir.",
+                                        "alt_birimler": []
+                                    },
+                                    {
+                                        "birim": "Baş Muhafız",
+                                        "detay": "Baş Muhafız, muhafızların en yüksek rütbelisidir. İmparatorluk içindeki asayişten sorumludur. İstihbarat ile ortak harekatlar ile örgütlere baskın yapılır. Yüce General'den bağımsız kararlar alır.",
+                                        "alt_birimler": [
+                                            {
+                                                "birim": "Muhafızlar",
+                                                "detay": "İmparatorluğun asayişinden sorumlu en alt birimidir. Suçları ve suçluları yakalamak ve güvenliği sağlamak gibi sorumlulukları bulunur. Son Ayin'den sonra hala toparlanma aşamasında olmasından dolayı mevcut imparatorlukta yargı sistemi henüz oturmamıştır. Bu yüzden de suçların cezaları direkt olarak Muhafızlar tarafından kesilip verilmektedir.",
+                                                "alt_birimler": []
+                                            },
+                                            {
+                                                "birim": "Avcılar",
+                                                "detay": "Ne kadar Baş Muhafız altında olsalar da Karaltılar Cemiyeti ile yakından çalışırlar. Avcıların görevi imparatorluk sınırları içinde var olan tüm büyücüleri yakalayarak büyü güçlerine göre anında infaz etmek veya Baş Muhafız ile Karaltılar Cemiyetine götürmektir.\n\nBüyü Tipine Göre Prosedür;\n\nKan, Işık --> Yakalandığı an öldürülmeli.\nKara, Ateş --> Yapılabiliyorsa Karaltılar Cemiyetine götürülmeli, risk var ise öldürülmeli.\nToprak, Fırtına --> Baş Muhafız'a götürülmeli.",
+                                                "alt_birimler": []
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "birim": "Ekonomi",
+                        "detay": "Ekonomi, Konsey'de kendi başına karar alamayan tek birimdir. Tüm kararları başka birimleri etkiler. Muhafız birimi ile vergi toplar, Konsey'de birimlerin bütçelerini belirler ve alınacak kararların imparatorluk ekonomisine olası zararları hakkında Konseyi bilgilendirir.",
+                        "alt_birimler": [
+                            {
+                                "birim": "Zepzengin",
+                                "detay": "Zepzengin, Konseyde Zenginler Cemiyeti ve Ekonomi biriminin temsilcisidir. Zenginler Cemiyetinin seçtiği Zepzengin, genelde en prestijli ve varlıklı cemiyet üyesidir.",
+                                "alt_birimler": [
+                                    {
+                                        "birim": "Zenginler Cemiyeti",
+                                        "detay": "Zenginler Cemiyeti, genelde 7 olmak ile birlikte belirli bir sayısı olmayan, imparatorluğun her yerinde adı duyulmuş, tanınan ve varlıklı olan kişilerin bir araya gelerek ekonomik kararlar aldığı cemiyettir. Zaman zaman zenginlerin bu kararları alıyor olması ekonomi üstünde risk oluşturuyor olsa da, \"Ben Ekonomistim\" diyen kişilere göre çok daha iyi bir ekonomiyi beraberinde getiriyor.",
+                                        "alt_birimler": []
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "birim": "Soylu",
+                        "detay": "Soylu birimi Konsey'de 2 oy oranına sahip tek birimdir. Bütün birimler karşısında karar almadığı sürece herhangi bir kararı veto edebilir. İkna edilmediği veya çıkarlarına uymadığı durumda genelde Konsey'den karar çıkmaz. Ulu İmparatorluğu'ndan kalan bağlantıları sayesinde diğer birimlerin içinde kendi adamları vardır. İmparatorlukta mutlak hakimiyete sahip denebilecek güçte bir birimdir.",
+                        "alt_birimler": [
+                            {
+                                "birim": "Asil Soy",
+                                "detay": "Asil Soy (genelde Renian Soyluları), Soylu Aileler arasında seçilen ve Soyluları Konsey'de temsil eden ailedir.",
+                                "alt_birimler": [
+                                    {
+                                        "birim": "Ronan Soyluları",
+                                        "detay": "Ronan Soyluları, Ulu döneminde imparatorluğun batı kesimlerini kontrol altında tutması için imparator tarafından desteklenmiş ve Ulu'nun yıkılmasına rağmen imparatorluğun elinde tuttuğu batı kıyılarında halen yönetimde iken, elinde tutamadığı Tharien kıyılarında da oldukça etkisi olan imparatorluğun önemli soylu ailelerindendir. İmparatorluk donanmalarının en büyük destekçisi ve birçok geminin sahibidirler.",
+                                        "alt_birimler": []
+                                    },
+                                    {
+                                        "birim": "Renian Soyluları",
+                                        "detay": "Renian Soyluları, Son Ayin'den sağ kurtulmuş, imparator ve ailesine en yakın soylu ailedir. Halk ve Ordu gözünde saygın ve önemli konumdadırlar. Diplomatik olarak da Rhazir ile olan ilişkilerde Rhazir'in ileri gelenleri Renian Soylularını diğer soylulara göre daha muhatap alırlar. İmparatorluğun dört bir yanında nüfuzları ve toprakları olmasının yanı sıra ağırlıklı olarak merkezindeki düzlük ovalarda ve çayırlarda daha güçlüdürler. Bu aile aynı zamanda imparatorluğun gıda üretimi ve ticaretinin de büyük bölümünü elinde tutmaktadır.",
+                                        "alt_birimler": []
+                                    },
+                                    {
+                                        "birim": "Karugan Soyluları",
+                                        "detay": "Ulu döneminde imparatorluğun güney tepelik bölgelerinde zengin ve nüfuzlu bir aile iken, Son Ayin'den sonra Ulu'nun yıkılması ile imparatorluğun güneyinin batısı ile ortasında halk tarafından destek görerek nüfuzunu daha da arttırmış bir ailedir. İmparatorluk sınırlarındaki çoğu soylu ailenin de Son Ayin ile yok olması ile birlikte soylular arasında yerlerini almışlardır.",
+                                        "alt_birimler": []
+                                    },
+                                    {
+                                        "birim": "Niomad Soyluları",
+                                        "detay": "İmparatorluğun ağırlıklı olarak kuzey kesimlerinde söz sahibi olan bu aile, Nyrim'in güney klanlarıyla iyi ilişkileri ile bilinir.",
+                                        "alt_birimler": []
+                                    },
+                                    {
+                                        "birim": "Tunder Soyluları",
+                                        "detay": "Ulu döneminde impatarorluğun gıda ve çelik gibi en önemli kaynaklarından birinci derece sorumluydu ve imparatorluğun kuzeyden güneye doğu bölgelerinde söz sahibiydi. Son Ayin sırasında aile üyelerinin önemli ve tanınmış olanlarının kaybedilmesi, Ulu'nun doğu topraklarının bağımsızlaşarak imparatorluktan ayrılması ile birlikte mevcut imparatorluğun güney batısında, çelik üretiminden sorumlu olan bir aile olmuştur.",
+                                        "alt_birimler": []
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "birim": "İstihbarat",
+                        "detay": "İstihbarat, en aktif rol oynayan ve hemen hemen bütün birimlerle çalışır. İstihbarat genel olarak çıkarları doğrultusunda bilgi dağıtan, ve bu çıkarlara uygun kişilerle birlikte hareket eden güçlü bir birimdir. İstihbaratın kimlerin içinde adamı olduğu ve ne kadar bilgiye erişebildiği tam bir sırdır. Hakkında çok fazla bilgi bulunmamaktadır.",
+                        "alt_birimler": [
+                            {
+                                "birim": "Gölge",
+                                "detay": "Gölge, istihbaratın Konsey'deki temsilcisidir ve Karaltılar Cemiyeti tarafından seçilir. Gölge, çoğu zaman toplantılara katılmaz, yapılacak oylamalarda bir mektup ile hangi birime destek vereceklerini açıklar ve genelde o birimin oyuna 1 oy daha eklenir.",
+                                "alt_birimler": [
+                                    {
+                                        "birim": "Karaltılar Cemiyeti",
+                                        "detay": "Karaltılar Cemiyeti, üyeleri ve iç yapısı bilinmeyen bir birimdir. Karaltılar, diğer birimlere sızan, başka ülkelerin yönetim kademelerine bile sızabilen özel eğitimli insanlardır.",
+                                        "alt_birimler": []
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "birim": "Halk",
+                        "detay": "Zhaerri Halkıdır, başkent Antronsa'da yapılan seçim ile gelen bir temsilci 1 yıl boyunca halkı Konsey'de temsil eder.",
+                        "alt_birimler": [
+                            {
+                                "birim": "Temsilci",
+                                "detay": "Başkent Antronsa'da yapılan seçim sonucunda seçilen ve Konsey'de halkı temsil eden kişidir.",
+                                "alt_birimler": [
+                                    {
+                                        "birim": "Millet",
+                                        "detay": "Başkent Antronsa'da yaşayan halktır.",
+                                        "alt_birimler": []
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "geography_details": "Zhaerri toprakları Althera kıtasının orta ve batı kısmının üstlerine uzanan bir egemenlik alanına sahiptir. Tüm ülkeler ile komşu olan bu devletin kuzeyinde Nyrim Klanları, güneyinde Rhazir,, batısında Vandrell Cumhuriyeti ve doğusunda Tharien Cumhuriyeti vardır.\n\nKuzeyinde, genellikle soğuk ve daha sert bir iklim vardır. Kışları köylere ulaşmak zorlaşır, minik göllerin üstü tamamen buz tutar. Kuzeybatısında bulunan toprakları ise bu soğuk ile birlikte denizden gelen sert rüzgarlardan kaynaklı kuraklık yaşar. Bitkiler donarak yanar, iyi korunamayan hayvanlar ve insanlar ise donarak ölür.\n\nOrta kesimleri genel olarak düzlük ovalara ve uzun nehirler ile derelere sahiptir. Burada topraklar verimlidir, hafif tepelerinde çeşit çeşit bitkiler yetişir. Anlık yaz yağmurlarında zaman zaman dereler taşar.\n\nGüneyi daha ılıman, tepelerin ve seyrek dağların olduğu bir coğrafyaya sahiptir. Deniz seviyesi sıcak, dağları ise oldukça soğuktur.\n\nGüneydoğusundaki toprakları Althera'nın en yüksek dağına ev sahipliği yapar.\n\nZhaerri İmparatorluğu, Altheranın bütün coğrafi özelliklerini az az bünyesinde toplamış büyük bir imparatorluktur.",
+        "story": "Ulu İmparatorluğu, Althera kıtasında şu ana kadar var olmuş en büyük imparatorluktu. Kıtada diş geçiremediği yalnızca iki ülke kalmış ve onların da düşmesi an meselesiyken yeni kral ile birlikte bunun gerçekleşeceği düşünülüyordu. Kraliyet düğününde kuzeyden bir gelin alınıyor ve Nyrim klanlarından Yer Sarsan Klanı, bu düğün ile imparatorluk himayesine girerek Nyrim'in parçalanmasına sebep olacak, Ulu da bu açıktan faydalanarak Nyrim'i alacaktı. Kutlama hazırlıkları başlamıştı, kıtanın dört bir yanından hem düğünü hem de taç giyme töreni yapılacak olan velihat için insanlar hediyeler getiriyor, tüm soylular bu etkinlikte yeni krala bağlılıklarını bildirmek için devasa kervanlarla yola çıkıyorlardı. Düğün henüz başlarken, kalenin altındaki mahzenlerde de bir yoğunluk yaşanıyordu. Yıllardır süregelen büyücü avlarından ve büyü şüphesi dahi barındıran kişilerin idamından doğan öfke ve nefret sonucunda bir örgüt var olmuştu. Kara Mühür... Örgüt onlarca kara, kan büyücüleri başta olmak üzere ışık, toprak ve fırtına büyücülerini de beraberinde büyük bir saldırı için hazırlanıyordu. Yukarıda şenlik başlamış, soylular sarayın içinde, halk sarayın bahçesinde ve kalenin dört bir yanında eğleniyor, içiyor ve danslar ediyorlardı. Kristalden yapılma gibi gözüken cam bir kadeh göğe kaldırılmış, minik olmasına karşın oldukça şatafatlı ve parlak gümüş bir kaşık ile hafif hafif vurularak çıkarılan ses ile bir kişinin söz istediği anlaşılmıştı. Herkes sesin geldiği yöne bakarken eğlence sesleri ve arkada çalan müzik durmuştu. Güzel ve alımlı bir kadın kaldırmışt kadehi. Dili ile dudaklarını hafifçe ıslatıp derin bir nefes çekti içine konuşmasına başlamaya haırlanırken, derken bir anda havadaki parıltılara takıldı gözü, etrafta mor, sarı ve kırmızı parıltılar uçuşuyordu, sanki yer tamamen közmüş de ondan kıvılcımlar çıkıyormuş gibi. Bir anda büyük salonun kapısından içeri bir muhafız daldı ve kralın nerde olduğunu bile seçmeye vakit harcamadan salonun saolndan sağına başını döndürürken bağırdı \"Kralım! Sakla...\" cümlesini bitiremeden tüm parıltılar birbirleri ile bir çizgi şeklinde rengarenk bağlandıktan sonra sarayda büyük bir patlama meydana geldi. Kalenin içindeki her yer mor ve siyah arasında renkli bir yapışkan, kaynar ancak tam sıvı da olmayan bir nesne ile kaplandı. İnsanlar eriyerek, yanarak çığlıklar içinde ölüyor bu sırada şanslı olup kaçabildiğini düşünenlerin üstüne sarayın parçaları yağıyordu. Kaleye yetişemeyen ve kapısına yaklaşan kişiler patlamanın yarattığı sarsıntının şiddeti ile yere düşmüş, sarayın tepesinden uçan kayalar üstlerine yağıyordu. Patlama, Altheranın en doğusundaki tarlalardan bile duyulmuştu. Ulu'nun neredeyse tüm soylu aileleri, en büyük generalleri, tecrübeli ve kahraman askerleri anında yok olmuştu. Haberin tüm imparatorluğa yayılması günler sürerken, haydutlar arasında bu süre 1-2 gün sürmüştü. İmparatorluğun dört bir yanında haydutlar kol geziyor, ordu hangi sınırlarda durması gerektiğini bilmiyor ve asayiş çöküyordu. Ordu örgütlenmeye çalışırken halk kendi bölgesel yönetimlerini kurmaya çalışıyordu, bu sırada Ulu'dan önce var olan Tharien bölgesindeki çiftçi ağırlıklı bir grup hızla Althera'nın doğusundaki çiftçileri örgütleyerek burada Tharien Cumhuriyetini kurdu. Altheranın en dağlık bölgesi olan ve drell çeliği ile meşhur olan eski Vandrell bölgeside bağımsızlığını ilan ederek Vandrell Cumhuriyeti kuruldu. Bu sırada içindeki isyanlar ile daha fazla mücadele edemeyen Ulu orduları, Ulu Hanedanı'na en yakın olan Renian Soyluları etrafında toplanmış, bunlar ile birlikte imparatorluğun daha fazla bölünmemesi için birkaç soylu aileden de destek alınarak Zhaerri İmparatorluğu kurulmuştur. Halkın hızla umutu ve güvenini kazanmak için Konsey kurulmuş ve başta Renian Soyluları olmak üzere toplam 3 farklı soylu aile ve halk tarafından kendi bölgelerinde artık soylu ilan edilmiş 2 aile konseye alınmıştı. Bu sayede artık bir ailenin yok oluşu ile tüm imparatorluğun tekrar yıkılması önlenecektir. Yeni yönetim hızlıca ordu içinde düzeni sağlamış ve yeni generaller atanmıştır. Eski istihbarat birimi bu yönetim ile işbirliği yapmış ve hızlıca haydut örgütleri tespit edilmeye başlanmıştır. Her gün yeni yönetim daha da güçlenmiş ve etkinliğini arttırmıştır. Halk kanadından aldığı destek artmış ve bununla birlikte yönetimsel zorluklardan kaynaklı Konsey'deki birim sayısı arttırılarak yeni kişiler konseye alınmıştır. Günümüze gelindiğinde Zhaerri, tecrübeli ordusu, alanında yetkin kişilerin yönetimde söz sahibi olması ile birlikte güçlü bir İmparatorluk olmuştur. Kendilerini Ulu'nun ardılı ve mirasçısı olarak görmelerinden kaynaklı bir çok alanı hızlıca kontrolleri altına almış ve Ulu'nun yapmış olduğu bir sürü anlamşayı diğer ülkeler ile devam ettirmiştir. Bu süreçte Tharien ve Vandrell Cumhuriyetlerinin bağımsızlıklarını tanımış ve onlar ile Ulu Birliği altında bir birlik kurarak sınırlarını karşılıklı olarak askersiz bırakarak güvenli bir ticaret ortamı sağlamıştır. Zhaerri, eski Ulu topraklarını istemek ile birlikte mevcutta halen ülkesindeki Kara Mühür varlığından dolayı endişe içindedir ve arada bir ticaret konvoyları veya minik köylerine yapılan Büyücü Saldırıları ile uğraşmaktadır. Zhaerri'nin hedefi, Ulu'nun hatalarından ders çıkararak tekrar güçlü ve büyük bir imparatorluk kurmaktır."
+    },
+    {
+        "id": "C-02",
+        "name": "Nyrim Klanları",
+        "government_details": [
+            {
+                "birim": "Alfa Klan",
+                "detay": "Alfa Klan, Nyrim halklarının ile dışarıdaki halkların arasında diplomasiyi yöneten mutlak klandır. Klanların Nyrim toprakları içerisindeki yönetimine karışamaz ancak klanlar arası meseleler, dışarıdaki devletlerden gelen saldırılar veya dışarıya karşı ortak harekatlar düzenleme yetkisine sahiptir.\n\nAlfa Klan olabilmek için klan liderinin mevcut alfa klan liderini bir müsabakada yenmesi gerekir.\n\nGeleneksel olarak müsabakayı kim kazanır ise kazansın rakibini öldürmez. Buna karşılık olarak rakibi de ömrü boyunca Alfa'ya itaat eder ve bir daha meydan okumaz. Bu sebeple genelde bir klan lideri alfa olmak için diğer 4 klanı yener ve ardından uzun yıllar öyle kalır.\n\nMevcut alfa klan, Kızıl Boynuz klanıdır.",
+                "alt_birimler": [
+                    {
+                        "birim": "Alkan Boynuz Klanı",
+                        "detay": "Alkan Boynuzlar, mevcut alfa klan olmalarının yanı sıra Nyrim tarihinde en uzun süre alfalığa sahip olmuş klandır. Sembolleri Ala Geyiktir.\n\nAlkan Boynuz liderinden sonraki lider direkt olarak belirgin değildir. Alfa olmayı garanti altına almak için mevcut lider aile erken yaşta çocuk yapar ve tüm çocukları sıkı eğitimlerden geçer. Çocuklar mevcut alfa ölmeden kendi aralarında düellolar ile birbirlerinin canlarını alır ve sona kalan evlat 20 yaşına geldiğinde babası alfalıktan çekilerek diğer yaşlı liderleri oğullarının kolay bir şekilde yenmesi için yol açar.\n\nAlkan Boynuzların bu geleneği sayesinde neredeyse tüm Nyrim tarihi boyunca sürkeli olarak alfa klan olmuşlardır ve bununla birlikte büyük bir güce sahiptirler.\n\nAlkan Boynuzlar, Nyrim'in batı ve orta kuzeyi ile merkezindeki topraklarda egemenlik kurmuş en büyük ve güçlü klandır.",
+                        "alt_birimler": []
+                    },
+                    {
+                        "birim": "Kış Pençe Klanı",
+                        "detay": "Kış Pençe, Nyrim'in Kuzey Doğusu'nu kontrol eden ve güçlü ordulara sahip klandır. Alkan Boynuzlar ile en yakın ilişkilere sahiptirler.\n\nKış Pençeler, Alkan Boynuzlara yakın bile olmamalarına karşın onlardan sonra en uzun süre alfa klan olan ikinci klandır. Sembolleri Boz Ayıdır. Ordularında Boz Ayı kullanmaları ve en sık ormanlarda yaşamalarından kaynaklı olarak bu sembol onların seçimi dışında onlara verilmiştir. Nyrim'in en güçlü ordularına sahip olmalarının yanı sıra savaşçılarının da ölümden korkmayışları ile bilinirler.\n\nNyrim halklarının Kuzey Adalar Federasyonu ve Birtan Krallığı'na yaptığı yağmalarda en çok savaşan ve bunun karşılığında diğer klanlara göre daha büyük ganimetler alan klandır.",
+                        "alt_birimler": []
+                    },
+                    {
+                        "birim": "Kütük Yırtan Klanı",
+                        "detay": "Kütük Yırtanlar, Nyrim'in güneydoğusunu kontrol ederler. Tharien Cumhuriyeti ile iyi ilişkiler geliştirmiştirler ve kuzeyindeki köyleri gıda karşılığında korurlar. Semboller kaplandır, yaşadıkları bölgedeki ormanlarda kaplanlar görüldüğü ve Ulu döneminde imparatora buradan kaplanlar götürüldüğü için bu sembolle anılırlar.",
+                        "alt_birimler": []
+                    },
+                    {
+                        "birim": "Ulu Boz Klanı",
+                        "detay": "Nyrim'in güneybatısındaki topraklarda hakimiyeti olan Ulu Bozlar, en az nüfuslu klandır. Nyrim'in sıra dağları da bu coğrafyalarda bulunur ve sembolleri bu dağlarda yaşayan kurtlardır. Avcılıkta oldukça başarılı olan bu klan aynı zamanda birkaç kurt türünü de evcilleştirerek bu avlarında kullanırlar.",
+                        "alt_birimler": []
+                    },
+                    {
+                        "birim": "Yer Sarsan Klanı",
+                        "detay": "Yer Sarsanlar, nesli tükenmekte olan mamutların ana vatanı olan Nyrim'in güneyinde yaşar. Mamutların nesillerini korumalarının yanı sıra onları inşaat ve taşımacılık gibi alanlarda da kullanan bu Yer Sarsanlar oldukça büyük ve sağlam ahşap yapılara sahiptir. Nyrim'in tamamını tehdit eden büyük bir ordu olmadığı sürece mamutları savaşta kullanmazlar, bunun sebebi ise mamutların yüksek ses ve ateş karşısında oldukça dengesi ve öngörülemez hareketleridir.\n\nHerhangi bir denize kıyılarının olmamasına karşın Alkan Boynuz ve Kış Pençe donanmalarının büyük bölümünü ellerindeki mamut gücünden kaynaklı Yer Sarsanlar üretmektedir.",
+                        "alt_birimler": []
+                    }
+                ]
+            }
+        ],
+        "geography_details": "Nyrim Klanları, Althera'nın kuzeyini kontrol eden bir klanlar birliğidir.\nNyrim, balta girmemiş ormanlarla çevrilidir ve sert kış mevsiminin farklı yoğunluklarda yaşandığı bir iklime sahiptir; 5 mevsim çok sert, 4 mevsim normal ve 3 mevsim daha hafif bir kış görülür. Kuzeyindeki denizlerde sıklıkla buz kütleleri bulunur; batısı ve doğusundaki denizler ise insanı birkaç dakikada dondurarak öldürebilecek kadar soğuktur.",
+        "story": "Kuzeyin soğuk ve çetin iklimine uyum sağlamış çeşitli yırtıcı ve büyük otçul hayvanlar vardır. Zaten mevsimlerin insanları hiç acımadan dondurduğu bu coğrafyada bir de böyle hayvanların bulunması, bu toprakları yaşanılması imkansız kılıyordu. Birkaç minik grup, onlara kanlarından gelen bir mucize ile bu topraklarda hayatta kalabileceklerini keşfetmişlerdi."
+    },
+    {
+        "id": "C-03",
+        "name": "Vandrell Cumhuriyeti",
+        "government_details": [
+            {
+                "birim": "Zanaatkar Lonca",
+                "detay": "Zanaatkar Lonca, Vandrell Cumhuriyetinin mutlak karar vericisidir. Vandrell'in beş bölgesinden seçilen Usta'lar ve Usta'ların aralarında seçtiği bir Büyük Usta'dan oluşur. Lonca'da kararlar oy çokluğu ile alınır ancak Büyük Usta'nın oy oranı fark etmeksizin bir kararı VETO etme hakkı vardır.",
+                "alt_birimler": [
+                    {
+                        "birim": "Büyük Usta",
+                        "detay": "Büyük Usta, Usta'ların içlerinden birini seçerek ona VETO yetkisi verdiği kişidir. Büyük Usta'nın görev süresi 5 Yıldır.",
+                        "alt_birimler": []
+                    },
+                    {
+                        "birim": "Usta (x4)",
+                        "detay": "Usta'lar bölge halkları tarafından, o bölgedeki Drell Çeliği zanaatında tanınmış kişiler arasından bölgelerini temsil etmesi için seçilmiş kişilerdir. Seçilen bir Usta bölgesindeki anlaşmazlık sorunlarını çözme, asayişi sağlama görevlerinin yanı sıra Zanaatkar Lonca'da bölgesini temsil etme sorumluluğunu üstlenir. Usta'lık seçimleri her 10 yılda bir tekrarlanır.",
+                        "alt_birimler": []
+                    }
+                ]
+            }
+        ],
+        "geography_details": "Vandrell Cumhuriyeti, Yüzlerce dağa ev sahipliği bir coğrafyaya sahiptir. Başkent olan Taşkent'in bir bölümü sadece düzlüktür.\n\nDağ eteklerine ve içlerine yapılmış yerleşim yerleri ile işgale karşı oldukça güçlü bir savunmaya sahip olan bu coğrafyada aynı zamanda tüm Althera'daki en sağlam metal olan Drell Çeliği bulunur. Yalnızca Vandrell dağlarında bulunan bu çelik, Vandrell'in en önemli gelir kaynağıdır.",
+        "story": "Vandrell"
+    },
+    {
+        "id": "C-04",
+        "name": "Rhazir",
+        "government_details": [
+            {
+                "birim": "Tüccar Konseyi",
+                "detay": "Tüccar Konseyi, Rhazir'deki mutlak karar vericidir ancak Özel Mülkiyet ve Serbest Piyasaya müdahale edecek kararları alamaz, vergilendirme yapamaz. Yalnızca güvenlik amaçlı kontroller ve askeri düzenlemeler yapabilir. Kararlar üç bölgede, bölgenin zenginleri tarafından uygulanır. Zenginlerin, konsey ve kendi bölgelerindeki gücü, onlara üye olan kişi sayısından gelir. Her 500 üye için 1 oy hakkın kazanılır. Karar alınabilmesi için en az %65 oy çoğunluğu sağlanmalıdır. Bölgeler, kendi içerisinde neyin suç sayılacağını ve ne kadar cezası olacağını belirleyebilir ancak özel mülkiyet ve serbest piyasaya müdahale tüm bölgelerde suçtur ve hepsinin ağır cezaları vardır.",
+                "alt_birimler": [
+                    {
+                        "birim": "Batı Bölgesi",
+                        "detay": "Batı Bölgesi, tüm Althera'nın en zengin insanlarını barındırır. Althera'nın en büyük ticaret limanları buradadır ve günde yüzlerce gemi bu limanlara gelir. Bu sebeple Rhazir nüfusu da yoğunluklu olarak buradadır, konseydeki oy oranının büyük çoğunluğu yine bu bölgeden gelir.",
+                        "alt_birimler": [
+                            {
+                                "birim": "Yüksek Üye Sayılı Zenginler",
+                                "detay": "Aslon, 65.000 üye ile Rhazir'in en çok üyeye sahip insanıdır. Bu sayı, Konsey'de tek başına yaklaşık %32'ye denk gelmektedir. Aslon'un ardından Fel 25.000 üye ile Konsey'de yaklaşık %12 oy oranına sahiptir.",
+                                "alt_birimler": []
+                            }
+                        ]
+                    },
+                    {
+                        "birim": "Güney Bölgesi",
+                        "detay": "Güney Bölgesi'nin geliri ağırlıklı olarak Rhazir'in doğu ile batı bölgesi kervanları ve Güney Adalar Federasyonu ile arasındaki ticaretten gelirini sağlar. Tüm Althera'nın en sıcak toprakları buradadır ve bu sebeple nüfusu da geri kalan bölgelerden daha düşüktür. Balık tüketimi çok yaygındır ve buna dair önemli teknikler geliştirilmiştir.",
+                        "alt_birimler": [
+                            {
+                                "birim": "Yüksek Üye Sayılı Zenginler",
+                                "detay": "Devel, Güney Bölgesi'nin en yüksek üye sayısına sahip insanıdır. 18.000 üyesi ile Konsey'de %9'luk bir orana sahiptir. Bu üye sayısı aynı zamanda Güney Bölgesi nüfusunun %60'ıdır.",
+                                "alt_birimler": []
+                            }
+                        ]
+                    },
+                    {
+                        "birim": "Doğu Bölgesi",
+                        "detay": "Doğu Bölgesi, Rhazir'e Tharien'den gıda taşıyarak geçimini sağlayan, ithalat odaklı bir bölgedir. Gıdanın ucuz ve erişilebilir olmasından kaynaklı olarak Batı Bölgesi'nden sonra nüfusu en yüksek yerdir ve hızla artmaktadır.",
+                        "alt_birimler": [
+                            {
+                                "birim": "Yüksek Üye Sayılı Zenginler",
+                                "detay": "Naran, Doğu Bölgesi'nin en yüksek üye sayısına sahip insanıdır ve yaklaşık 20.000 üyesi vardır. Bu sayı ile Konsey'de %10'luk bir oy oranına sahiptir ve bu sayı kendi bölgesinin %40'ına karşılık gelmektedir.",
+                                "alt_birimler": []
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "geography_details": "Rhazir, %85'i çöllerle kaplı, yerleşimi ağırlıklı olarak deniz kenarlarında olan bir ülkedir.\n\nOnlarca koy ve ve körfeze sahip bu coğrafya, çeşitli deniz canlılarına ev sahipliği yapar. Karın hiç uğramadığı, yazların ise dışarıda korunmasız bir şekilde durulamayacak kadar sıcak geçtiği bu coğrafya, işgallere karşı doğal bir korumaya sahiptir.",
+        "story": "Rhazir"
+    },
+    {
+        "id": "C-05",
+        "name": "Tharien Cumhuriyeti",
+        "government_details": [
+            {
+                "birim": "Tharien Meclisi",
+                "detay": "Tharien Meclisi, halkın seçtiği temsilcilerin toplanarak karar aldığı mutlak karar vericidir. Meclis oturum üzerinden ilerler ve yalnızca ulusal çapta bir karar alınacağı zaman meclis toplanır. Kararlar nitelikli oy çokluğu ile alınır ve en az 5'de 3 olmalıdır. Oturumları Meclis Başkanı yönetir ve oylamayı o başlatıp o bitirir.",
+                "alt_birimler": [
+                    {
+                        "birim": "Meclis Başkanı",
+                        "detay": "Meclis Başkanı, temsilciler tarafından kendi içlerinden 2 oturum süre ile meclisi yönetmesi için seçilen kişidir. Oylama başlatıp bitirme, sonraki oturumun yapılacağı zaman temsilcilere haber verme ve ikinci oturumda yeni meclis başkanının seçilmesinden sorumludur. Köyler arası sorunlara aracı olarak da görev alır.",
+                        "alt_birimler": []
+                    },
+                    {
+                        "birim": "Temsilciler",
+                        "detay": "Temsilciler, köylüler tarafından istendiği an değiştirilmek üzere seçilen kişilerdir. Her köyün temsilcisinin yetkisi farklıdır.",
+                        "alt_birimler": []
+                    }
+                ]
+            }
+        ],
+        "geography_details": "Uzun ve geniş düzlükleri, birbiriyle kesişen, her yere uzanan nehir ve dereleri ile Tharien coğrafyası adeta Kut'daki bir cennettir. Toprakları çok verimli, her türlü besi hayvanının bulunduğu bu topraklarda her mevsim yaşanır.\n\nSonbahar yağmurları ile dereler taşar, kışın yollar kapanır ancak bunlara karşılık ilkbaharda binbir çeşit çiçek açar, ağaçlar meyveler verir. Yazları ise derelerinde hayvanlar sulanır, kuşların cıvıltıları ağaçlardan duyulur.",
+        "story": "Tharien"
+    },
+    {
+        "id": "C-06",
+        "name": "Güney Adalar Federasyonu",
+        "government_details": [
+            {
+                "birim": "Ticaret Konseyi",
+                "detay": "Ticaret Konseyi, içerisinde federasyonun önde gelen tüccarlarının oluşturduğu Ticaret Kurulu ve Federal Meclis tarafından atanmış müfettişlerin oluşturduğu Federal Teftiş Kurulu birimleri vardır. Konsey'den çıkan kanunlar, Federal Meclis ve organları tarafından uygulanır.",
+                "alt_birimler": [
+                    {
+                        "birim": "Ticaret Kurulu",
+                        "detay": "Ticaret Kurulu, içerisinde Kurul Üyeleri ile Kurul Sözcüsü'nün bulunduğu bir birimdir. İçerisinde Kurul Üyleleri kararlar alır ve bu kararları Kurul Sözcüsü aracılığı ile Federal Teftiş Kurulu'na bildirilir.",
+                        "alt_birimler": [
+                            {
+                                "birim": "Kurul Üyeleri",
+                                "detay": "Kurul Üyeleri, Ticaret Kurulu içerisinde bulunan ve tüm Güney Adalar Federasyonu'nda en tanınmış ve zengin insanlarının oluşturduğu. Yeni üyelerin yalnızca referans veya davet sonucu katılabildiği bir birliktir. Ağırlıklı olarak Rhazir asıllı kişilerden oluşmaktadır.",
+                                "alt_birimler": []
+                            },
+                            {
+                                "birim": "Kurul Sözcüsü",
+                                "detay": "Kurul Sözcüsü, Kurul Üyeleri tarafından seçilen ve alınan kararları Federal Teftiş Kuruluna sunan kişidir. Bu görevi uzun yıllardır Koman üstlenmektedir.",
+                                "alt_birimler": []
+                            }
+                        ]
+                    },
+                    {
+                        "birim": "Federal Teftiş Kurulu",
+                        "detay": "Federal Teftiş Kurulu, Ticaret Kurulu'nun aldığı kararların uygulamaya konulmasından önce uygunluklarını kontrol eder. Eşitsizlik yaratabilecek veya uygulamasında zorluklar olacak uygulamaların düzenlenmesi veya değiştirilmesinin talep edilmesi için Federal Meclis'e bildirir.",
+                        "alt_birimler": [
+                            {
+                                "birim": "Halk Müfettişleri",
+                                "detay": "Halk Müfettişleri, her adadan halkın seçtiği bir kişiden oluşan kişiler birliğidir. Kurul toplanacağı her zaman tekrar seçililer, bu sayede halk mevcut yönetimden memnun değilse müfettiş değişimleri ile kanunları engelleyebilir.",
+                                "alt_birimler": []
+                            },
+                            {
+                                "birim": "Federal Müfettiş",
+                                "detay": "Federal Meclis tarafından atanan müfettiştir. Gelen kararlar, Halk Müfettişlerinin tepkileri gibi bilgileri direkt olarak Federal Meclis'e aktarır.",
+                                "alt_birimler": []
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "birim": "Federal Meclis",
+                "detay": "Federal Meclis, Ticaret Konseyi'nden çıkan karar ve kanunların uygulanmasını sağlayan, güvenlikten sorumlu, kolluk kuvettlerinin atanması ve seçimlerin güven içinde gerçekleşmesini sağlayan yapı. ",
+                "alt_birimler": [
+                    {
+                        "birim": "Adalar Temsilcisi",
+                        "detay": "Federal Meclis ve hükümete başkanlık eden, en çok adanın destekleği ile seçilen kişi. Dış ülkeler ile diplomatik ilişkilere de giden kişi.",
+                        "alt_birimler": [
+                            {
+                                "birim": "Ada Temsilcileri",
+                                "detay": "Federal Meclis'te ada halkını temsil etmesi için her ada tarafından ayrı ayrı seçilen kişiler.",
+                                "alt_birimler": []
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "geography_details": "Güney Adalar Federasyonu, Althera'nın güneyinde bulunan 12 adadan oluşmaktadır. En büyük 2 ada aynı zamanda Ticaret Konseyi ve Federal Meclisin bulunduğu adalardır.\n\n12 adadan 11 tanesi tropikal bir iklime sahiptir ve yılın büyük bir zamanında sıcaktır. Merkez adalara göre kuzey doğu bölgesinde kalan Tharya adası ise 5 ay yaz, 6 ay bahar ve 1 ay kış olmak üzere tüm mevsimleri yaşamaktadır.\n\nMeclis ve Konsey'in bulunduğu adalar daha yüksek olmalarından kaynaklı diğer adalara göre daha serindir.\n\nGüney Adalar Federasyonu'nda tropikal bitkiler dışındaki tarım ürünleri yalnızca Tharya adasında yetişmektedir.",
+        "story": ""
+    },
+    {
+        "id": "C-07",
+        "name": "Birtan Krallığı",
+        "government_details": [
+            {
+                "birim": "Hanedan",
+                "detay": "Aetherin Hanedanı, uzun yıllardır Britanı kontrol eden hanedandır. Nüfusu günden güne artan Britanın merkezi haricinde yerleşim yeri daha bulunur. Bunların ikisi Başkent \"Cair Avalon\"un olduğu koyun iki ucunda bulunan güneyde kalan şehir \"Portus Solis\" ve kuzeyde kalan şehir \"Dun Barr\"dır. Bu iki şehir ulaşımın kolaylığı ve yakınlıkları sebebi ile direkt hanedanlığa bağlıdır. Ancak en batısında kalan \"Mynydd Haearn\" bir lordluktur ve Vardus ailesi tarafından yönetilir.",
+                "alt_birimler": [
+                    {
+                        "birim": "Aetherin Ailesi (Hanedan)",
+                        "detay": "Aetherin hanedanının başındaki Kral Gaelin Aetherin'dir. Aetherin ailesi ne kadar otoritelerine rakip olabilecek olan Vardus lordluğundan hoşlanmasalar da Nyrim baskınlarına karşı düzenli olarak savaş halinde olmalarından kaynaklı adada kontrol sağlamak için ek bir otoriter desteğe ihtiyaç duymaktadır. Özellikle de yeni tahta çıkan Gaelin, Vardus ailesinin ortadan kaldırılması ve merkezi bir yönetim kurulması isteğindedir.",
+                        "alt_birimler": []
+                    },
+                    {
+                        "birim": "Vardus Ailesi (Lord)",
+                        "detay": "Vardus Ailesinin mevcut lideri Lord Cassian Vardus'dur. Mynydd Haearn (Mınid Hayarn)'da oldukça sevilen ve saygı duyulan biri olan Cassian oldukça otoriter ve disiplinli bir lorddur. Henüz genç yaşlarında şehri büyütmüş ve adadaki en büyük, kapsamlı ikinci şehir haline getirmiştir. Özellikle Nyrim baskınlarına karşı kurduğu, az sayıda birliğe sahip olmasına rağmen disiplinli saldırıları sayesinde, Mynydd birlikleri Portus Solis'i neredeyse hiç zarar görmeden korumuştur. Kral Oberon Aetherin döneminde oldukça geniş toprakları yönetme hakkı edinmiş Lord Cassian, yeni tahta geçen Kral Gaelin ile çok iyi anlaşamamaktadır.",
+                        "alt_birimler": []
+                    }
+                ]
+            }
+        ],
+        "geography_details": "Bir ada ülkesi olan Britan Krallığı, sert ve kurak bir iklime sahiptir.\n\nBaşkenti bir koya kurulmuş ve bu yüzden daha güzel hava koşullarına sahip olan Britan'ın batısındaki Mynydd Haearn ise oldukça soğuk, sert bir iklimin yanında daha önce hiç görülmemiş hayvanlara ev sahipliği yapmaktadır.\n\nHer yıl 1 hafta Britan Denizi donarak Althera ile yürünerek birbirine geçilebilen bir yol oluşturur. Bu Nyrim saldırılarının en çok olduğu dönemdir.",
+        "story": "Birtan"
+    },
+    {
+        "id": "C-08",
+        "name": "Kuzey Adalar Federasyonu",
+        "government_details": [
+            {
+                "birim": "Kuzey İmparatoru",
+                "detay": "Ada Kralları tarafından seçilir ve ölene kadar görevde kalırdı. KAF Krallıklarının ortak hareket etmesi ve özellikle de Nyrim baskınlarına ve donanmalarına karşı krallıklara belirli görev dağıtımları ile daha düzenli ve sağlam bir donanma oluşturma konusunda ihtiyaç duyulan bir makamdır.",
+                "alt_birimler": [
+                    {
+                        "birim": "Ada Kralları",
+                        "detay": "Ada Kralları, içinde bulunduğu adanın geçmişinden gelen soylu ailelerin içinden kalıtsal olarak tahta geçen kişilerdir. Bu karallar kendilerine ait ada ve bölgelerin yönetimini sağlar ve yine bu bölgelerin vergilerini toplar. İmparatorun emri ile ortak bir harekat yapılacağı zaman kendi ordusunun başında İmparatorun emirlerini uygular.",
+                        "alt_birimler": []
+                    },
+                    {
+                        "birim": "Kuzey Rüzgarı",
+                        "detay": "Kuzey Rüzgarı, direkt olarak imparator tarafından atanan, elçidir. İmparatorun emirlerini ve isteklerini krallıklar arasında gezerek bildirir ve uygulatır. İmparatora danışmanlık yapar ve genelde imparatorun ordularının da başındadır. İmparatorun gölgesidir.",
+                        "alt_birimler": []
+                    }
+                ]
+            }
+        ],
+        "geography_details": "Kuzey Adalar Federasyonu (KAF), Althera'nın en kuzeyinde, Britan adasının doğusunda kalan ve irili ufaklı toplam 65'e yakın ada ve adacıktan oluşmaktadır.\n\nOldukça sert bir iklime sahip bu adaların birçoğu 9 büyük ada etrafında kümelenmiştir. En soğuk dönemlerde 4-5 Haftalık bir süre boyunca küçük adalardan etraflarındaki bu büyük adalara sular donarak direkt olarak geçiş imkanı sağlar.\n\nAğırlıklı olarak balıkçılık ile uğraşırlar, güneydoğusunda kalan Yeşilyurt adasında sadece tarım ürünleri yetişmektedir.",
+        "story": "Kuzey Adalar Federasyonu"
+    }
+]
