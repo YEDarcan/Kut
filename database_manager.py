@@ -2,7 +2,7 @@ import sqlite3
 import os
 import json
 from typing import List, Dict
-from models import Character, Chapter, Country, GovUnit
+from models import Character, Chapter, Country, GovUnit, MapPin
 
 DB_NAME = "hikaye_veritabani.db"
 
