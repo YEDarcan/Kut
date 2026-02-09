@@ -7,8 +7,48 @@ st.set_page_config(
     page_title="Antigravity Hikaye Yöneticisi",
     page_icon="📚",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed", # Hide sidebar by default
 )
+
+# Custom CSS for Compact Desktop-like UI
+st.markdown("""
+<style>
+    /* Remove default top padding */
+    .block-container {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+    /* Compact Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 2px;
+        background-color: #1e1e1e;
+        padding: 5px;
+        border-radius: 5px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 40px;
+        white-space: pre-wrap;
+        background-color: #121212;
+        border-radius: 3px;
+        color: #aeaeae;
+        font-size: 14px;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #3f51b5 !important;
+        color: white !important;
+    }
+    /* Compact Headings */
+    h1, h2, h3 {
+        padding-top: 0px !important;
+        margin-top: 0px !important;
+    }
+    /* Button Styling */
+    .stButton button {
+        border-radius: 0px;
+        border: 1px solid #333;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # Initialize Database
 if "db_initialized" not in st.session_state:
@@ -16,57 +56,55 @@ if "db_initialized" not in st.session_state:
     st.session_state.db_initialized = True
 
 def main():
-    st.sidebar.title("📚 Hikaye Yöneticisi")
+    # Top Navigation (Tabs)
+    tab_home, tab_char, tab_story, tab_world, tab_map_audio, tab_settings = st.tabs([
+        "🏠 Ana Sayfa", 
+        "👥 Karakterler", 
+        "📖 Hikaye", 
+        "🌍 Dünya", 
+        "🗺️ Harita & Ses", 
+        "⚙️ Ayarlar"
+    ])
     
-    # Navigation
-    page = st.sidebar.radio(
-        "Gezinti",
-        ["Ana Sayfa", "Karakterler", "Hikaye (Bölümler)", "Dünya & Ülkeler", "Harita & Ses", "Ayarlar"]
-    )
-    
-    st.sidebar.markdown("---")
-    st.sidebar.info("v2.0 - Web Sürümü")
-
-    if page == "Ana Sayfa":
+    with tab_home:
         show_home()
-    elif page == "Karakterler":
+    
+    with tab_char:
         show_characters()
-    elif page == "Hikaye (Bölümler)":
+        
+    with tab_story:
         show_story()
-    elif page == "Dünya & Ülkeler":
+        
+    with tab_world:
         show_world()
-    elif page == "Harita & Ses":
+        
+    with tab_map_audio:
         show_map_audio()
-    elif page == "Ayarlar":
+        
+    with tab_settings:
         show_settings()
 
 def show_home():
-    st.title("🧙‍♂️ Antigravity Yazarlık Stüdyosu")
-    st.markdown("""
-    Hoş geldiniz! Burası hikayenizi her yerden yazabileceğiniz yeni çalışma alanınız.
-    
-    ### 🚀 Neler Yapabilirsiniz?
-    *   **Karakterler**: Karakterlerinizi oluşturun, düzenleyin ve fotoğraflarını yükleyin.
-    *   **Hikaye**: Bölümler halinde hikayenizi yazın, kelime sayınızı takip edin.
-    *   **Dünya**: Ülkeleri, yönetim biçimlerini ve bayraklarını yönetin.
-    *   **Harita**: Dünyanızın haritasını yükleyin ve inceleyin.
-    
-    *Verileriniz güvende ve anlık olarak kaydediliyor.*
-    """)
-    
-    # Dashboard / Stats
-    col1, col2, col3 = st.columns(3)
+    # Dashboard-like Home
+    col_main, col_stat = st.columns([3, 1])
     
     chars = database_manager.load_characters()
     chaps = database_manager.load_chapters()
     countries = database_manager.load_countries()
-    
-    with col1:
-        st.metric("Karakter Sayısı", len(chars))
-    with col2:
-        st.metric("Yazılan Bölüm", len(chaps))
-    with col3:
-        st.metric("Oluşturulan Ülke", len(countries))
+
+    with col_main:
+        st.title("Antigravity Yazarlık Stüdyosu")
+        st.markdown("### Hoş Geldiniz! 👋")
+        st.write("Masaüstü deneyimine sadık kalınarak tasarlanmış web arayüzünüz hazır.")
+        st.info("👆 Yukarıdaki sekmeleri kullanarak modüller arasında geçiş yapabilirsiniz.")
+
+    with col_stat:
+        st.markdown("### 📊 Durum")
+        st.metric("Karakterler", len(chars))
+        st.metric("Bölümler", len(chaps))
+        st.metric("Ülkeler", len(countries))
+        
+    st.divider()
 
 def show_characters():
     st.header("👥 Karakterler")
